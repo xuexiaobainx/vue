@@ -93,5 +93,5 @@ function logError (e) {
 }
 
 function blue (str) {
-  return '\x1b[1m\x1b[34m' + str + '\x1b[39m\x1b[22m'
+  return '\x1b[1m\x1b[34m' + str + '\x1b[39m\x1b[22m'   /*shell控制码，设置输出格式 */
 }
