@@ -43,9 +43,9 @@ export function initMixin (Vue: Class<Component>) {
     }
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
-      initProxy(vm)
+      initProxy(vm)       /*生产环境下要初始化proxy，设置一个代理 */
     } else {
-      vm._renderProxy = vm
+      vm._renderProxy = vm      /*开发环境下，_renderProxy就是vm本身 */    
     }
     // expose real self
     vm._self = vm
@@ -66,7 +66,7 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     if (vm.$options.el) {
-      vm.$mount(vm.$options.el)
+      vm.$mount(vm.$options.el)     /*挂载vm，实现方式与平台、构建方式相关 */
     }
   }
 }

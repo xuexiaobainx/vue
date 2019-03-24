@@ -31,13 +31,13 @@ import {
 const sharedPropertyDefinition = {
   enumerable: true,
   configurable: true,
-  get: noop,
+  get: noop,    /*初始化一个空操作 */
   set: noop
 }
 
 export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter () {
-    return this[sourceKey][key]
+    return this[sourceKey][key]     /*把vm.$options.data.key或vm._data.key设置到vm.key， */
   }
   sharedPropertyDefinition.set = function proxySetter (val) {
     this[sourceKey][key] = val

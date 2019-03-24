@@ -41,7 +41,7 @@ export default class Watcher {
 
   constructor (
     vm: Component,
-    expOrFn: string | Function,
+    expOrFn: string | Function,           /*就是传入的updateComponent方法 */
     cb: Function,
     options?: Object
   ) {
@@ -69,7 +69,7 @@ export default class Watcher {
       : ''
     // parse expression for getter
     if (typeof expOrFn === 'function') {
-      this.getter = expOrFn
+      this.getter = expOrFn         /*updateComponent赋值给getter,之后每次更新视图都会调用 */
     } else {
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
@@ -95,7 +95,7 @@ export default class Watcher {
     let value
     const vm = this.vm
     try {
-      value = this.getter.call(vm, vm)
+      value = this.getter.call(vm, vm)     /*执行传进来的updateComponent方法 */
     } catch (e) {
       if (this.user) {
         handleError(e, vm, `getter for watcher "${this.expression}"`)

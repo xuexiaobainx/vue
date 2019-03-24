@@ -13,6 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
     'require' // for Webpack/Browserify
   )
 
+  /*报错原因可能是：该Property or method没有定义 */
   const warnNonPresent = (target, key) => {
     warn(
       `Property or method "${key}" is not defined on the instance but ` +
@@ -24,6 +25,7 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+  /**判断当前浏览器支不支持proxy，ES6里面的一个api，对对象访问做劫持 */
   const hasProxy =
     typeof Proxy !== 'undefined' &&
     Proxy.toString().match(/native code/)
@@ -64,7 +66,7 @@ if (process.env.NODE_ENV !== 'production') {
   }
 
   initProxy = function initProxy (vm) {
-    if (hasProxy) {
+    if (hasProxy) {    
       // determine which proxy handler to use
       const options = vm.$options
       const handlers = options.render && options.render._withStripped

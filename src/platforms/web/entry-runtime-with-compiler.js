@@ -14,15 +14,15 @@ const idToTemplate = cached(id => {
   return el && el.innerHTML
 })
 
-const mount = Vue.prototype.$mount
-Vue.prototype.$mount = function (
+const mount = Vue.prototype.$mount        
+Vue.prototype.$mount = function (       /*compiler版本的mount方法实现不同，这里重新定义了一遍 */
   el?: string | Element,
   hydrating?: boolean
 ): Component {
-  el = el && query(el)
+  el = el && query(el)        /*获取或创建dom对象 */
 
   /* istanbul ignore if */
-  if (el === document.body || el === document.documentElement) {
+  if (el === document.body || el === document.documentElement) {     /*排除body和html */
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
     )
@@ -31,12 +31,12 @@ Vue.prototype.$mount = function (
 
   const options = this.$options
   // resolve template/el and convert to render function
-  if (!options.render) {
+  if (!options.render) {  /*如果没有render函数，就先解析template，然后编译成render */
     let template = options.template
     if (template) {
-      if (typeof template === 'string') {
-        if (template.charAt(0) === '#') {
-          template = idToTemplate(template)
+      if (typeof template === 'string') {     /*传入的是<div></div>或者id */
+        if (template.charAt(0) === '#') {      /*如果传入的是模板的id */
+          template = idToTemplate(template)       /*通过id获取dom节点或者新建dom节点 */
           /* istanbul ignore if */
           if (process.env.NODE_ENV !== 'production' && !template) {
             warn(
@@ -45,7 +45,7 @@ Vue.prototype.$mount = function (
             )
           }
         }
-      } else if (template.nodeType) {
+      } else if (template.nodeType) {     /*template是个dom对象 */
         template = template.innerHTML
       } else {
         if (process.env.NODE_ENV !== 'production') {
@@ -56,7 +56,7 @@ Vue.prototype.$mount = function (
     } else if (el) {
       template = getOuterHTML(el)
     }
-    if (template) {
+    if (template) {         /*实现render函数 */
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
@@ -77,7 +77,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
-  return mount.call(this, el, hydrating)
+  return mount.call(this, el, hydrating)     /*最后都是走到runtime版的基本的mount方法 */
 }
 
 /**
@@ -87,7 +87,7 @@ Vue.prototype.$mount = function (
 function getOuterHTML (el: Element): string {
   if (el.outerHTML) {
     return el.outerHTML
-  } else {
+  } else {                  /*兼容IE没有outerHTML方法，先包一层，然后取innerHTML */
     const container = document.createElement('div')
     container.appendChild(el.cloneNode(true))
     return container.innerHTML

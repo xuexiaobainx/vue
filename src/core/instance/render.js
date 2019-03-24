@@ -26,10 +26,10 @@ export function initRender (vm: Component) {
   // so that we get proper render context inside it.
   // args order: tag, data, children, normalizationType, alwaysNormalize
   // internal version is used by render functions compiled from templates
-  vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)
+  vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)     /* */
   // normalization is always applied for the public version, used in
   // user-written render functions.
-  vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)
+  vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)   /*用户可以自己实现的render函数 */
 
   // $attrs & $listeners are exposed for easier HOC creation.
   // they need to be reactive so that HOCs using them are always updated
@@ -80,8 +80,11 @@ export function renderMixin (Vue: Class<Component>) {
     // render self
     let vnode
     try {
-      vnode = render.call(vm._renderProxy, vm.$createElement)
-    } catch (e) {
+      vnode = render.call(vm._renderProxy, vm.$createElement)  
+      /*第一个参数是当前上下文，生产环境下就是this vm，开发环境是一个proxy对象 */
+      /*参数是在initRender里面赋值 */
+    } catch (e) {   
+      /*处理生成vnode中出现的错误 */
       handleError(e, vm, `render`)
       // return error render result,
       // or previous vnode to prevent render error causing blank component
@@ -104,7 +107,7 @@ export function renderMixin (Vue: Class<Component>) {
     // return empty vnode in case the render function errored out
     if (!(vnode instanceof VNode)) {
       if (process.env.NODE_ENV !== 'production' && Array.isArray(vnode)) {
-        warn(
+        warn(             /*根节点有多个vnode */
           'Multiple root nodes returned from render function. Render function ' +
           'should return a single root node.',
           vm

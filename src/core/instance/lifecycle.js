@@ -145,20 +145,20 @@ export function mountComponent (
   el: ?Element,
   hydrating?: boolean
 ): Component {
-  vm.$el = el
-  if (!vm.$options.render) {
-    vm.$options.render = createEmptyVNode
+  vm.$el = el        /*缓存节点 */
+  if (!vm.$options.render) {    /*如果是runtime版或者compiler版本也没有生成render函数 */
+    vm.$options.render = createEmptyVNode     /* 初始化render函数为一个空vNode*/
     if (process.env.NODE_ENV !== 'production') {
       /* istanbul ignore if */
       if ((vm.$options.template && vm.$options.template.charAt(0) !== '#') ||
-        vm.$options.el || el) {
+        vm.$options.el || el) {   /*用了template但是是runtime-only版本，或者用compiler版本但是没有正确的template或者el来生成render */
         warn(
           'You are using the runtime-only build of Vue where the template ' +
           'compiler is not available. Either pre-compile the templates into ' +
           'render functions, or use the compiler-included build.',
           vm
-        )
-      } else {
+        )    /** */
+      } else {    /*没有template也没有render函数 */
         warn(
           'Failed to mount component: template or render function not defined.',
           vm
@@ -170,7 +170,7 @@ export function mountComponent (
 
   let updateComponent
   /* istanbul ignore if */
-  if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+  if (process.env.NODE_ENV !== 'production' && config.performance && mark) {   /*开发环境下的性能埋点 */
     updateComponent = () => {
       const name = vm._name
       const id = vm._uid
@@ -188,12 +188,12 @@ export function mountComponent (
       measure(`vue ${name} patch`, startTag, endTag)
     }
   } else {
-    updateComponent = () => {
-      vm._update(vm._render(), hydrating)
+    updateComponent = () => {      /*用来渲染，每次视图更新修改触发 */
+      vm._update(vm._render(), hydrating)    /*第一个参数是渲染出来的vNode */
     }
   }
 
-  vm._watcher = new Watcher(vm, updateComponent, noop)
+  vm._watcher = new Watcher(vm, updateComponent, noop)   /*渲染的观察者模式，每次修改视图都会调用updateComponent，所以定义成getter */
   hydrating = false
 
   // manually mounted instance, call mounted on self
