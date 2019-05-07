@@ -15,14 +15,14 @@ const idToTemplate = cached(id => {
 })
 
 const mount = Vue.prototype.$mount        
-Vue.prototype.$mount = function (       /*compiler版本的mount方法实现不同，这里重新定义了一遍 */
+Vue.prototype.$mount = function (     /*runtime-only版本和compiler版本的mount方法实现不同，这里重新定义了一遍 */
   el?: string | Element,
   hydrating?: boolean
 ): Component {
   el = el && query(el)        /*获取或创建dom对象 */
 
   /* istanbul ignore if */
-  if (el === document.body || el === document.documentElement) {     /*排除body和html */
+  if (el === document.body || el === document.documentElement) {     /*排除body和html标签 */
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
     )
@@ -56,7 +56,7 @@ Vue.prototype.$mount = function (       /*compiler版本的mount方法实现不�
     } else if (el) {
       template = getOuterHTML(el)
     }
-    if (template) {         /*实现render函数 */
+    if (template) {         /*有了template，现在来实现render函数 */
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
@@ -84,7 +84,7 @@ Vue.prototype.$mount = function (       /*compiler版本的mount方法实现不�
  * Get outerHTML of elements, taking care
  * of SVG elements in IE as well.
  */
-function getOuterHTML (el: Element): string {
+function getOuterHTML (el: Element): string {     //返回的是dom结构字符串
   if (el.outerHTML) {
     return el.outerHTML
   } else {                  /*兼容IE没有outerHTML方法，先包一层，然后取innerHTML */

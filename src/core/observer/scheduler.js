@@ -75,13 +75,13 @@ function flushSchedulerQueue () {
 
   // keep copies of post queues before resetting state
   const activatedQueue = activatedChildren.slice()
-  const updatedQueue = queue.slice()
+  const updatedQueue = queue.slice()    //取更新队列的一个副本
 
   resetSchedulerState()
 
   // call component updated and activated hooks
   callActivatedHooks(activatedQueue)
-  callUpdatedHooks(updatedQueue)
+  callUpdatedHooks(updatedQueue)    //遍历queue进行更新操作
 
   // devtool hook
   /* istanbul ignore if */
@@ -95,8 +95,8 @@ function callUpdatedHooks (queue) {
   while (i--) {
     const watcher = queue[i]
     const vm = watcher.vm
-    if (vm._watcher === watcher && vm._isMounted) {
-      callHook(vm, 'updated')
+    if (vm._watcher === watcher && vm._isMounted) {    //是一个渲染watcher并且已经mounted过了（也就是说不是第一次渲染）
+      callHook(vm, 'updated')      //对vm实例执行update钩子
     }
   }
 }
@@ -129,7 +129,7 @@ export function queueWatcher (watcher: Watcher) {
   if (has[id] == null) {
     has[id] = true
     if (!flushing) {
-      queue.push(watcher)
+      queue.push(watcher)    //queue是不断添加watcher的
     } else {
       // if already flushing, splice the watcher based on its id
       // if already past its id, it will be run next immediately.

@@ -29,21 +29,21 @@ export function initMixin (Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
-    if (options && options._isComponent) {
+    if (options && options._isComponent) {      //如果是组件
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
-      initInternalComponent(vm, options)
+      initInternalComponent(vm, options)   //初始化组件VNode的options
     } else {
-      vm.$options = mergeOptions(
-        resolveConstructorOptions(vm.constructor),
-        options || {},
+      vm.$options = mergeOptions(     //合并options
+        resolveConstructorOptions(vm.constructor),    //new Vue的时候vm.constructor就是Vue，这个函数返回Vue.options，在global-api/index.js中初始化
+        options || {},          //定义new Vue的时候用户传入的options
         vm
       )
     }
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
-      initProxy(vm)       /*生产环境下要初始化proxy，设置一个代理 */
+      initProxy(vm)       /*生产环境下要初始化proxy，设置一个代理，检查 */
     } else {
       vm._renderProxy = vm      /*开发环境下，_renderProxy就是vm本身 */    
     }
@@ -52,11 +52,11 @@ export function initMixin (Vue: Class<Component>) {
     initLifecycle(vm)
     initEvents(vm)
     initRender(vm)
-    callHook(vm, 'beforeCreate')
+    callHook(vm, 'beforeCreate')      //初始化时执行的钩子
     initInjections(vm) // resolve injections before data/props
-    initState(vm)
+    initState(vm)         //初始化组件的data/props之类的属性
     initProvide(vm) // resolve provide after data/props
-    callHook(vm, 'created')
+    callHook(vm, 'created')         //初始化
 
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -72,8 +72,9 @@ export function initMixin (Vue: Class<Component>) {
 }
 
 function initInternalComponent (vm: Component, options: InternalComponentOptions) {
-  const opts = vm.$options = Object.create(vm.constructor.options)
+  const opts = vm.$options = Object.create(vm.constructor.options)    //封装Vue.options赋值给实例的$options
   // doing this because it's faster than dynamic enumeration.
+  //这里不需要复杂的合并策略，可以直接赋值 
   opts.parent = options.parent
   opts.propsData = options.propsData
   opts._parentVnode = options._parentVnode
@@ -87,10 +88,10 @@ function initInternalComponent (vm: Component, options: InternalComponentOptions
     opts.staticRenderFns = options.staticRenderFns
   }
 }
-
+//全局mixin，初始化时解决options
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
-  if (Ctor.super) {
+  if (Ctor.super) {       //传入的Ctor如果是Vue,则不走这个if判断
     const superOptions = resolveConstructorOptions(Ctor.super)
     const cachedSuperOptions = Ctor.superOptions
     if (superOptions !== cachedSuperOptions) {

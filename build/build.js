@@ -8,7 +8,7 @@ if (!fs.existsSync('dist')) {
   fs.mkdirSync('dist')
 }
 
-let builds = require('./config').getAllBuilds()
+let builds = require('./config').getAllBuilds()    //得到rollup打包用的config
 
 // filter builds via command line arg
 if (process.argv[2]) {

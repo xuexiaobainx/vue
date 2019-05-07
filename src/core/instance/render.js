@@ -26,10 +26,11 @@ export function initRender (vm: Component) {
   // so that we get proper render context inside it.
   // args order: tag, data, children, normalizationType, alwaysNormalize
   // internal version is used by render functions compiled from templates
-  vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)     /* */
+  vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)     /*通过template模板编译生成的render函数*/ 
+  
   // normalization is always applied for the public version, used in
   // user-written render functions.
-  vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)   /*用户可以自己实现的render函数 */
+  vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)     /*用户可以自己定义render函数来生成vnode */
 
   // $attrs & $listeners are exposed for easier HOC creation.
   // they need to be reactive so that HOCs using them are always updated
@@ -56,7 +57,7 @@ export function renderMixin (Vue: Class<Component>) {
   Vue.prototype.$nextTick = function (fn: Function) {
     return nextTick(fn, this)
   }
-
+//在最后挂载节点的mountComponent方法中调用_render
   Vue.prototype._render = function (): VNode {
     const vm: Component = this
     const { render, _parentVnode } = vm.$options
@@ -76,7 +77,7 @@ export function renderMixin (Vue: Class<Component>) {
 
     // set parent vnode. this allows render functions to have access
     // to the data on the placeholder node.
-    vm.$vnode = _parentVnode
+    vm.$vnode = _parentVnode     //实际是占位符VNode
     // render self
     let vnode
     try {
@@ -107,7 +108,7 @@ export function renderMixin (Vue: Class<Component>) {
     // return empty vnode in case the render function errored out
     if (!(vnode instanceof VNode)) {
       if (process.env.NODE_ENV !== 'production' && Array.isArray(vnode)) {
-        warn(             /*根节点有多个vnode */
+        warn(             /*如果根节点有多个vnode */
           'Multiple root nodes returned from render function. Render function ' +
           'should return a single root node.',
           vm

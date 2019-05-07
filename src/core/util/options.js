@@ -25,7 +25,7 @@ import {
  * how to merge a parent option value and a child option
  * value into the final value.
  */
-const strats = config.optionMergeStrategies
+const strats = config.optionMergeStrategies     //定义了各种合并策略的集合
 
 /**
  * Options with restrictions
@@ -145,7 +145,7 @@ function mergeHook (
     : parentVal
 }
 
-LIFECYCLE_HOOKS.forEach(hook => {
+LIFECYCLE_HOOKS.forEach(hook => {       //LIFECYCLE_HOOKS在shared/constants.js中定义
   strats[hook] = mergeHook
 })
 
@@ -235,7 +235,7 @@ strats.computed = function (
 strats.provide = mergeDataOrFn
 
 /**
- * Default strategy.
+ * Default strategy.     默认最简单的合并策略，strats里面不同的key有不同的合并策略，如上代码中定义
  */
 const defaultStrat = function (parentVal: any, childVal: any): any {
   return childVal === undefined
@@ -347,7 +347,7 @@ function assertObjectType (name: string, value: any, vm: ?Component) {
   }
 }
 
-/**
+/** Vue上的options与当前实例vm.$options合并
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
  */
@@ -357,7 +357,7 @@ export function mergeOptions (
   vm?: Component
 ): Object {
   if (process.env.NODE_ENV !== 'production') {
-    checkComponents(child)
+    checkComponents(child)     //组件定义的检测
   }
 
   if (typeof child === 'function') {
@@ -369,7 +369,7 @@ export function mergeOptions (
   normalizeDirectives(child)
   const extendsFrom = child.extends
   if (extendsFrom) {
-    parent = mergeOptions(parent, extendsFrom, vm)
+    parent = mergeOptions(parent, extendsFrom, vm)     //递归调用
   }
   if (child.mixins) {
     for (let i = 0, l = child.mixins.length; i < l; i++) {
@@ -387,8 +387,8 @@ export function mergeOptions (
     }
   }
   function mergeField (key) {
-    const strat = strats[key] || defaultStrat
-    options[key] = strat(parent[key], child[key], vm, key)
+    const strat = strats[key] || defaultStrat     //取得当前key的合并策略
+    options[key] = strat(parent[key], child[key], vm, key)    //进行合并 
   }
   return options
 }
@@ -398,8 +398,8 @@ export function mergeOptions (
  * This function is used because child instances need access
  * to assets defined in its ancestor chain.
  */
-export function resolveAsset (
-  options: Object,
+export function resolveAsset (     
+  options: Object,      //配置合并之后的
   type: string,
   id: string,
   warnMissing?: boolean
@@ -411,12 +411,12 @@ export function resolveAsset (
   const assets = options[type]
   // check local registration variations first
   if (hasOwn(assets, id)) return assets[id]
-  const camelizedId = camelize(id)
+  const camelizedId = camelize(id)     //转换成驼峰格式
   if (hasOwn(assets, camelizedId)) return assets[camelizedId]
-  const PascalCaseId = capitalize(camelizedId)
+  const PascalCaseId = capitalize(camelizedId)    //转换成首字母大写格式
   if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId]
   // fallback to prototype chain
-  const res = assets[id] || assets[camelizedId] || assets[PascalCaseId]
+  const res = assets[id] || assets[camelizedId] || assets[PascalCaseId]    //什么都找不到
   if (process.env.NODE_ENV !== 'production' && warnMissing && !res) {
     warn(
       'Failed to resolve ' + type.slice(0, -1) + ': ' + id,

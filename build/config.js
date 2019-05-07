@@ -34,6 +34,7 @@ const resolve = p => {
   }
 }
 
+//定义每个版本不同的编译配置
 const builds = {
   // Runtime only (CommonJS). Used by bundlers e.g. Webpack & Browserify
   'web-runtime-cjs': {
@@ -168,9 +169,9 @@ const builds = {
   }
 }
 
-function genConfig (name) {
+function genConfig (name) {      //拿到builds里面定义的config对象之后在这里重新构建对应的适用于rollup打包的config
   const opts = builds[name]
-  const config = {
+  const config = {                
     input: opts.entry,
     external: opts.external,
     plugins: [

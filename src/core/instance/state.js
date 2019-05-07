@@ -35,12 +35,13 @@ const sharedPropertyDefinition = {
   set: noop
 }
 
-export function proxy (target: Object, sourceKey: string, key: string) {
+//做代理，例如访问this.message就相当于访问this._data.message
+export function proxy (target: Object, sourceKey: string, key: string) {   
   sharedPropertyDefinition.get = function proxyGetter () {
-    return this[sourceKey][key]     /*把vm.$options.data.key或vm._data.key设置到vm.key， */
+    return this[sourceKey][key]     
   }
   sharedPropertyDefinition.set = function proxySetter (val) {
-    this[sourceKey][key] = val
+    this[sourceKey][key] = val          /*把vm.$options.data.key或vm._data.key设置到vm.key， */
   }
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
@@ -121,11 +122,11 @@ function initData (vm: Component) {
     )
   }
   // proxy data on instance
-  const keys = Object.keys(data)
-  const props = vm.$options.props
+  const keys = Object.keys(data)    //data里面定义的属性不能与props和methods里面的重复冲突，因为最终都会挂到vm下面
+  const props = vm.$options.props          
   const methods = vm.$options.methods
   let i = keys.length
-  while (i--) {
+  while (i--) {           
     const key = keys[i]
     if (process.env.NODE_ENV !== 'production') {
       if (methods && hasOwn(methods, key)) {

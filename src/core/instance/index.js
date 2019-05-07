@@ -13,11 +13,11 @@ function Vue (options) {
   }
   this._init(options)
 }
-
-initMixin(Vue)
-stateMixin(Vue)
-eventsMixin(Vue)
-lifecycleMixin(Vue)
-renderMixin(Vue)
+//下面这几个方法是添加Vue的原型方法，（先初始化这里的原型方法）
+initMixin(Vue)    //添加Vue.prototype._init()
+stateMixin(Vue)     //_state()
+eventsMixin(Vue)    //_event()
+lifecycleMixin(Vue)   //_lifecycle()
+renderMixin(Vue)    //_render()
 
 export default Vue

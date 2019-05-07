@@ -21,3 +21,5 @@ export const createCompiler = createCompilerCreator(function baseCompile (
     staticRenderFns: code.staticRenderFns
   }
 })
+
+//compiler编译相关代码：vue2.0关注template的创建，无需手动书写render方法

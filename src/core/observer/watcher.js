@@ -46,7 +46,7 @@ export default class Watcher {
     options?: Object
   ) {
     this.vm = vm
-    vm._watchers.push(this)
+    vm._watchers.push(this)    //添加渲染watcher
     // options
     if (options) {
       this.deep = !!options.deep

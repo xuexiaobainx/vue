@@ -14,20 +14,20 @@ export function initExtend (Vue: GlobalAPI) {
   let cid = 1
 
   /**
-   * Class inheritance
+   * Class inheritance  每个组件有对应的一个构造器
    */
   Vue.extend = function (extendOptions: Object): Function {
     extendOptions = extendOptions || {}
     const Super = this
-    const SuperId = Super.cid
+    const SuperId = Super.cid     //构造器的唯一标识
     const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
-    if (cachedCtors[SuperId]) {
+    if (cachedCtors[SuperId]) {     //缓存池里面取，无需重复创建构造器
       return cachedCtors[SuperId]
     }
 
     const name = extendOptions.name || Super.options.name
     if (process.env.NODE_ENV !== 'production') {
-      if (!/^[a-zA-Z][\w-]*$/.test(name)) {
+      if (!/^[a-zA-Z][\w-]*$/.test(name)) {    //校验组件名称
         warn(
           'Invalid component name: "' + name + '". Component names ' +
           'can only contain alphanumeric characters and the hyphen, ' +
@@ -36,10 +36,10 @@ export function initExtend (Vue: GlobalAPI) {
       }
     }
 
-    const Sub = function VueComponent (options) {
+    const Sub = function VueComponent (options) {       //用_init方法初始化一个子构造函数
       this._init(options)
     }
-    Sub.prototype = Object.create(Super.prototype)
+    Sub.prototype = Object.create(Super.prototype)    //原型继承，使Sub继承Vue的能力
     Sub.prototype.constructor = Sub
     Sub.cid = cid++
     Sub.options = mergeOptions(
@@ -80,7 +80,7 @@ export function initExtend (Vue: GlobalAPI) {
     Sub.extendOptions = extendOptions
     Sub.sealedOptions = extend({}, Sub.options)
 
-    // cache constructor
+    // cache constructor    缓存Sub
     cachedCtors[SuperId] = Sub
     return Sub
   }

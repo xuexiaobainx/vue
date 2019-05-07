@@ -66,13 +66,13 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   return map
 }
 
-export function createPatchFunction (backend) {
+export function createPatchFunction (backend) {    
   let i, j
-  const cbs = {}
+  const cbs = {}     /*分类保存所有模块的钩子函数 */
 
   const { modules, nodeOps } = backend
 
-  for (i = 0; i < hooks.length; ++i) {
+  for (i = 0; i < hooks.length; ++i) {    /*遍历事先定义好的钩子命名 */
     cbs[hooks[i]] = []
     for (j = 0; j < modules.length; ++j) {
       if (isDef(modules[j][hooks[i]])) {
@@ -81,7 +81,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function emptyNodeAt (elm) {
+  function emptyNodeAt (elm) {    /*传入真实dom */
     return new VNode(nodeOps.tagName(elm).toLowerCase(), {}, [], undefined, elm)
   }
 
@@ -105,7 +105,7 @@ export function createPatchFunction (backend) {
 
   let inPre = 0
   function createElm (vnode, insertedVnodeQueue, parentElm, refElm, nested) {
-    vnode.isRootInsert = !nested // for transition enter check
+    vnode.isRootInsert = !nested // for transition enter check 
     if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
       return
     }
@@ -131,7 +131,7 @@ export function createPatchFunction (backend) {
           ) &&
           config.isUnknownElement(tag)
         ) {
-          warn(
+          warn(      /*未注册也非原生标签 */
             'Unknown custom element: <' + tag + '> - did you ' +
             'register the component correctly? For recursive components, ' +
             'make sure to provide the "name" option.',
@@ -164,11 +164,11 @@ export function createPatchFunction (backend) {
           insert(parentElm, vnode.elm, refElm)
         }
       } else {
-        createChildren(vnode, children, insertedVnodeQueue)
+        createChildren(vnode, children, insertedVnodeQueue)     /*创建vnode的所有子节点，再加入 */
         if (isDef(data)) {
           invokeCreateHooks(vnode, insertedVnodeQueue)
         }
-        insert(parentElm, vnode.elm, refElm)
+        insert(parentElm, vnode.elm, refElm)    /*再插入到父节点中 */
       }
 
       if (process.env.NODE_ENV !== 'production' && data && data.pre) {
@@ -206,7 +206,7 @@ export function createPatchFunction (backend) {
 
   function initComponent (vnode, insertedVnodeQueue) {
     if (isDef(vnode.data.pendingInsert)) {
-      insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)
+      insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)   //递归添加子组件到insertedVnodeQueue，插入顺序也是先子后父
       vnode.data.pendingInsert = null
     }
     vnode.elm = vnode.componentInstance.$el
@@ -280,7 +280,7 @@ export function createPatchFunction (backend) {
     i = vnode.data.hook // Reuse variable
     if (isDef(i)) {
       if (isDef(i.create)) i.create(emptyNode, vnode)
-      if (isDef(i.insert)) insertedVnodeQueue.push(vnode)
+      if (isDef(i.insert)) insertedVnodeQueue.push(vnode)  
     }
   }
 
@@ -514,15 +514,15 @@ export function createPatchFunction (backend) {
       if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)
     }
   }
-
-  function invokeInsertHook (vnode, queue, initial) {
+  
+  function invokeInsertHook (vnode, queue, initial) {  //遍历queue(patch过程中不断插入添加的，需要插入的vnode)
     // delay insert hooks for component root nodes, invoke them after the
     // element is really inserted
     if (isTrue(initial) && isDef(vnode.parent)) {
       vnode.parent.data.pendingInsert = queue
     } else {
       for (let i = 0; i < queue.length; ++i) {
-        queue[i].data.hook.insert(queue[i])
+        queue[i].data.hook.insert(queue[i])     //执行create-component.js中定义的insert钩子函数
       }
     }
   }
@@ -628,6 +628,7 @@ export function createPatchFunction (backend) {
     }
   }
 
+  /*返回的是patch函数，调用vm.__patch__就是相当于调用的这里的patch函数 */
   return function patch (oldVnode, vnode, hydrating, removeOnly, parentElm, refElm) {
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
@@ -642,7 +643,7 @@ export function createPatchFunction (backend) {
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue, parentElm, refElm)
     } else {
-      const isRealElement = isDef(oldVnode.nodeType)
+      const isRealElement = isDef(oldVnode.nodeType)   /*判断是否真实dom */
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
@@ -671,11 +672,11 @@ export function createPatchFunction (backend) {
           }
           // either not server-rendered, or hydration failed.
           // create an empty node and replace it
-          oldVnode = emptyNodeAt(oldVnode)
+          oldVnode = emptyNodeAt(oldVnode)    /*new一个空的vNode节点替换掉 */
         }
         // replacing existing element
-        const oldElm = oldVnode.elm
-        const parentElm = nodeOps.parentNode(oldElm)
+        const oldElm = oldVnode.elm     /*原来的真实dom */
+        const parentElm = nodeOps.parentNode(oldElm)   /*找父节点 */
         createElm(
           vnode,
           insertedVnodeQueue,

@@ -31,7 +31,7 @@ extend(Vue.options.directives, platformDirectives)
 extend(Vue.options.components, platformComponents)
 
 // install platform patch function
-Vue.prototype.__patch__ = inBrowser ? patch : noop
+Vue.prototype.__patch__ = inBrowser ? patch : noop   /*客户端浏览器才有vnode */
 
 // public mount method
 Vue.prototype.$mount = function (     /*runtime-only版本初始定义，通用的，与entry-runtime-with-compiler中的实现不同 */

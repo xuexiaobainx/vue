@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
     'require' // for Webpack/Browserify
   )
 
-  /*报错原因可能是：该Property or method没有定义 */
+  /*报错原因：该Property or method or data中都没有定义 */
   const warnNonPresent = (target, key) => {
     warn(
       `Property or method "${key}" is not defined on the instance but ` +
@@ -47,8 +47,8 @@ if (process.env.NODE_ENV !== 'production') {
 
   const hasHandler = {
     has (target, key) {
-      const has = key in target
-      const isAllowed = allowedGlobals(key) || key.charAt(0) === '_'
+      const has = key in target       //methods或者props中有没有
+      const isAllowed = allowedGlobals(key) || key.charAt(0) === '_'     //是否为全局方法或私有属性
       if (!has && !isAllowed) {
         warnNonPresent(target, key)
       }
