@@ -98,7 +98,7 @@ export function _createElement (
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
       )
-    } else if (isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {    /*可以匹配到对应组件 */
+    } else if (isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {    /*如果可以匹配到对应组件 */
       // component
       vnode = createComponent(Ctor, data, context, children, tag)     //创建组件vnode
     } else {      /*两者都不是 */

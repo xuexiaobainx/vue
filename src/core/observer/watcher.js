@@ -46,7 +46,7 @@ export default class Watcher {
     options?: Object
   ) {
     this.vm = vm
-    vm._watchers.push(this)    //添加渲染watcher
+    vm._watchers.push(this)    //push渲染watcher
     // options
     if (options) {
       this.deep = !!options.deep
@@ -60,9 +60,9 @@ export default class Watcher {
     this.id = ++uid // uid for batching
     this.active = true
     this.dirty = this.lazy // for lazy watchers
-    this.deps = []
-    this.newDeps = []
-    this.depIds = new Set()
+    this.deps = []           //存放旧的依赖
+    this.newDeps = []       //存放新的依赖
+    this.depIds = new Set()    //创建Set对象，存放需要监听的组件id
     this.newDepIds = new Set()
     this.expression = process.env.NODE_ENV !== 'production'
       ? expOrFn.toString()
@@ -108,7 +108,7 @@ export default class Watcher {
       if (this.deep) {
         traverse(value)
       }
-      popTarget()
+      popTarget()    //把刚才放进去的当前watcher删除
       this.cleanupDeps()
     }
     return value
@@ -119,7 +119,7 @@ export default class Watcher {
    */
   addDep (dep: Dep) {
     const id = dep.id
-    if (!this.newDepIds.has(id)) {
+    if (!this.newDepIds.has(id)) {    //加入新的依赖
       this.newDepIds.add(id)
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {
@@ -131,22 +131,22 @@ export default class Watcher {
   /**
    * Clean up for dependency collection.
    */
-  cleanupDeps () {
-    let i = this.deps.length
+  cleanupDeps () {//没有改变的数据不会创建新的依赖，也就是不会创建新的watcher，所以需要在this.deps中把newDepIds中没有的watcher删掉，避免无意义的更新界面，提高性能
+    let i = this.deps.length    //已有deps
     while (i--) {
       const dep = this.deps[i]
-      if (!this.newDepIds.has(dep.id)) {
-        dep.removeSub(this)
+      if (!this.newDepIds.has(dep.id)) {   //如果在deps中的不在newDepIds中
+        dep.removeSub(this)      //移除这个dep中的watcher
       }
     }
     let tmp = this.depIds
     this.depIds = this.newDepIds
-    this.newDepIds = tmp
-    this.newDepIds.clear()
+    this.newDepIds = tmp        //depIds与newDepIds互换
+    this.newDepIds.clear()     //newDepIds初始化清空
     tmp = this.deps
     this.deps = this.newDeps
-    this.newDeps = tmp
-    this.newDeps.length = 0
+    this.newDeps = tmp         //deps与newDeps互换
+    this.newDeps.length = 0     //newDeps初始化清空
   }
 
   /**
@@ -160,7 +160,7 @@ export default class Watcher {
     } else if (this.sync) {
       this.run()
     } else {
-      queueWatcher(this)
+      queueWatcher(this)    //处理当前watcher
     }
   }
 

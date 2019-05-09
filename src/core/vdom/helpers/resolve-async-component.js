@@ -15,7 +15,7 @@ import { createEmptyVNode } from 'core/vdom/vnode'
 function ensureCtor (comp: any, base) {
   if (
     comp.__esModule ||
-    (hasSymbol && comp[Symbol.toStringTag] === 'Module')
+    (hasSymbol && com p[Symbol.toStringTag] === 'Module')
   ) {
     comp = comp.default
   }
@@ -37,10 +37,10 @@ export function createAsyncPlaceholder (
   return node
 }
 
-export function resolveAsyncComponent (
-  factory: Function,
-  baseCtor: Class<Component>,
-  context: Component
+export function resolveAsyncComponent (      //构造异步组件：有工厂函数、Promise、高级异步组件三种方式
+  factory: Function,          //当前实例的构造函数
+  baseCtor: Class<Component>,      //Vue
+  context: Component         //当前组件的实例
 ): Class<Component> | void {
   if (isTrue(factory.error) && isDef(factory.errorComp)) {
     return factory.errorComp
@@ -56,9 +56,9 @@ export function resolveAsyncComponent (
 
   if (isDef(factory.contexts)) {
     // already pending
-    factory.contexts.push(context)
+    factory.contexts.push(context)      //非首次执行直接push
   } else {
-    const contexts = factory.contexts = [context]
+    const contexts = factory.contexts = [context]      //初次执行
     let sync = true
 
     const forceRender = () => {
@@ -67,7 +67,7 @@ export function resolveAsyncComponent (
       }
     }
 
-    const resolve = once((res: Object | Class<Component>) => {
+    const resolve = once((res: Object | Class<Component>) => {   //once函数保证参数只执行一次
       // cache resolved
       factory.resolved = ensureCtor(res, baseCtor)
       // invoke callbacks only if this is not a synchronous resolve
@@ -88,12 +88,12 @@ export function resolveAsyncComponent (
       }
     })
 
-    const res = factory(resolve, reject)
+    const res = factory(resolve, reject)    
 
-    if (isObject(res)) {
-      if (typeof res.then === 'function') {
+    if (isObject(res)) {      
+      if (typeof res.then === 'function') {    //这个分支是异步组件的Promise创建方式：如果上面的factory函数之后返回了一个Promise对象
         // () => Promise
-        if (isUndef(factory.resolved)) {
+        if (isUndef(factory.resolved)) {     //这个分支是异步组件的高级工厂函数创建方式
           res.then(resolve, reject)
         }
       } else if (isDef(res.component) && typeof res.component.then === 'function') {
@@ -106,7 +106,7 @@ export function resolveAsyncComponent (
         if (isDef(res.loading)) {
           factory.loadingComp = ensureCtor(res.loading, baseCtor)
           if (res.delay === 0) {
-            factory.loading = true
+            factory.loading = true    //接下来就直接返回factory.loadingComp，渲染loadingComp
           } else {
             setTimeout(() => {
               if (isUndef(factory.resolved) && isUndef(factory.error)) {

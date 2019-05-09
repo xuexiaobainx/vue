@@ -107,7 +107,7 @@ export function  createComponent (
     return
   }
 
-  const baseCtor = context.$options._base    //vm.$options._base == Vue.options._base == Vue
+  const baseCtor = context.$options._base    //这里vm.$options._base == Vue.options._base == Vue
 
   // plain options object: turn it into a constructor
   if (isObject(Ctor)) {
@@ -123,16 +123,16 @@ export function  createComponent (
     return
   }
 
-  // async component  异步组件
+  // async component  加载异步组件
   let asyncFactory
   if (isUndef(Ctor.cid)) {
     asyncFactory = Ctor
-    Ctor = resolveAsyncComponent(asyncFactory, baseCtor, context)
+    Ctor = resolveAsyncComponent(asyncFactory, baseCtor, context)   //返回一个组件构造器
     if (Ctor === undefined) {
       // return a placeholder node for async component, which is rendered
       // as a comment node but preserves all the raw information for the node.
       // the information will be used for async server-rendering and hydration.
-      return createAsyncPlaceholder(
+      return createAsyncPlaceholder(     //创建一个空的占位vnode
         asyncFactory,
         data,
         context,

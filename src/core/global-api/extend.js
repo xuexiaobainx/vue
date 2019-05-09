@@ -35,8 +35,9 @@ export function initExtend (Vue: GlobalAPI) {
         )
       }
     }
-
-    const Sub = function VueComponent (options) {       //用_init方法初始化一个子构造函数
+    //组件的局部注册，mergeOptions是扩展到Sub.$options，所以局部组件只能在当前组件下使用
+    //而全局注册的组件是把options merge到Vue上，所以可以全局使用
+    const Sub = function VueComponent (options) {       //用_init方法初始化一个子构造函数   
       this._init(options)
     }
     Sub.prototype = Object.create(Super.prototype)    //原型继承，使Sub继承Vue的能力
@@ -44,7 +45,7 @@ export function initExtend (Vue: GlobalAPI) {
     Sub.cid = cid++
     Sub.options = mergeOptions(
       Super.options,
-      extendOptions
+      extendOptions     //子组件定义时候的options
     )
     Sub['super'] = Super
 

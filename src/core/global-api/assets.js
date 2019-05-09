@@ -27,7 +27,7 @@ export function initAssetRegisters (Vue: GlobalAPI) {    //组件的全局注册
         }
         if (type === 'component' && isPlainObject(definition)) {
           definition.name = definition.name || id
-          definition = this.options._base.extend(definition)    //把definition对象通过Vue.extend方法转换成一个构造器
+          definition = this.options._base.extend(definition)    //把传入的definition通过Vue.extend方法转换成一个构造器
         }
         if (type === 'directive' && typeof definition === 'function') {
           definition = { bind: definition, update: definition }

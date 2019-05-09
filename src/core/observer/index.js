@@ -41,14 +41,14 @@ export class Observer {
     this.value = value
     this.dep = new Dep()
     this.vmCount = 0
-    def(value, '__ob__', this)
-    if (Array.isArray(value)) {
+    def(value, '__ob__', this)        //用来给对象设置属性，这里把__ob__设置成不可枚举的属性了，在下面的walk方法中就不会遍历到__ob__属性
+    if (Array.isArray(value)) {     //value是array的处理
       const augment = hasProto
         ? protoAugment
         : copyAugment
       augment(value, arrayMethods, arrayKeys)
       this.observeArray(value)
-    } else {
+    } else {                       //value是object的处理
       this.walk(value)
     }
   }
@@ -61,7 +61,7 @@ export class Observer {
   walk (obj: Object) {
     const keys = Object.keys(obj)
     for (let i = 0; i < keys.length; i++) {
-      defineReactive(obj, keys[i], obj[keys[i]])
+      defineReactive(obj, keys[i], obj[keys[i]])     //把每一个属性都变成响应式的
     }
   }
 
@@ -104,7 +104,7 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
  * returns the new observer if successfully observed,
  * or the existing observer if the value already has one.
  */
-export function observe (value: any, asRootData: ?boolean): Observer | void {
+export function observe (value: any, asRootData: ?boolean): Observer | void {    //asRootData：是否为根数据
   if (!isObject(value) || value instanceof VNode) {
     return
   }
@@ -129,7 +129,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
 /**
  * Define a reactive property on an Object.
  */
-export function defineReactive (
+export function defineReactive (    //把属性变成响应式
   obj: Object,
   key: string,
   val: any,
@@ -138,25 +138,25 @@ export function defineReactive (
 ) {
   const dep = new Dep()
 
-  const property = Object.getOwnPropertyDescriptor(obj, key)
-  if (property && property.configurable === false) {
+  const property = Object.getOwnPropertyDescriptor(obj, key)     //获取对象中属性的descriptor对象，里面有get,set,configurable,enumerable
+  if (property && property.configurable === false) {   
     return
   }
 
-  // cater for pre-defined getter/setters
+  // cater for pre-defined getter/setters     
   const getter = property && property.get
   const setter = property && property.set
 
-  let childOb = !shallow && observe(val)
+  let childOb = !shallow && observe(val)    //递归给每一个属性设置观察者
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
-    get: function reactiveGetter () {
+    get: function reactiveGetter () {      //做依赖收集
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
         dep.depend()
         if (childOb) {
-          childOb.dep.depend()
+          childOb.dep.depend()        //递归给每一个属性的观察者对象添加依赖（创建消息订阅）
           if (Array.isArray(value)) {
             dependArray(value)
           }
@@ -164,10 +164,10 @@ export function defineReactive (
       }
       return value
     },
-    set: function reactiveSetter (newVal) {
+    set: function reactiveSetter (newVal) {    //做派发更新
       const value = getter ? getter.call(obj) : val
       /* eslint-disable no-self-compare */
-      if (newVal === value || (newVal !== newVal && value !== value)) {
+      if (newVal === value || (newVal !== newVal && value !== value)) {   //新值旧值相同，则什么都不做
         return
       }
       /* eslint-enable no-self-compare */
@@ -179,8 +179,8 @@ export function defineReactive (
       } else {
         val = newVal
       }
-      childOb = !shallow && observe(newVal)
-      dep.notify()
+      childOb = !shallow && observe(newVal)     //给新值创建observe
+      dep.notify()    //派发更新
     }
   })
 }
