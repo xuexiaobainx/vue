@@ -63,9 +63,10 @@ export const hasSymbol =
   typeof Reflect !== 'undefined' && isNative(Reflect.ownKeys)
 
 /**
- * Defer a task to execute it asynchronously.
+ * Defer a task to execute it asynchronously.    数据变化到DOM变化是一个异步过程。一个主线程的执行过程称为一个tick
  */
-export const nextTick = (function () {
+//Vue原型和Vue扩展api中都引入了nextTick
+export const nextTick = (function () {  //把要执行的任务推入一个队列中，在下一个tick同步执行
   const callbacks = []
   let pending = false
   let timerFunc
@@ -88,7 +89,7 @@ export const nextTick = (function () {
   // that consistently queues the callback after all DOM events triggered in the
   // same loop is by using MessageChannel.
   /* istanbul ignore if */
-  if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
+  if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {   //根据浏览器的不同支持程度做不同的异步处理，isNative是原生支持
     timerFunc = () => {
       setImmediate(nextTickHandler)
     }
@@ -97,11 +98,11 @@ export const nextTick = (function () {
     // PhantomJS
     MessageChannel.toString() === '[object MessageChannelConstructor]'
   )) {
-    const channel = new MessageChannel()
+    const channel = new MessageChannel()   //获取一个实例
     const port = channel.port2
-    channel.port1.onmessage = nextTickHandler
+    channel.port1.onmessage = nextTickHandler    //port1
     timerFunc = () => {
-      port.postMessage(1)
+      port.postMessage(1)      //port2
     }
   } else
   /* istanbul ignore next */
@@ -117,26 +118,26 @@ export const nextTick = (function () {
       setTimeout(nextTickHandler, 0)
     }
   }
-
-  return function queueNextTick (cb?: Function, ctx?: Object) {
+  //数据改变后触发渲染watcher的update，但是watchers的flush是在nextTick后，所以渲染是一步的
+  return function queueNextTick (cb?: Function, ctx?: Object) {    //把当前tick要执行的回调函数放入数组，在下一个tick中执行
     let _resolve
     callbacks.push(() => {
       if (cb) {
-        try {
-          cb.call(ctx)
+        try {       //避免执行失败阻碍主线程
+          cb.call(ctx)     
         } catch (e) {
           handleError(e, ctx, 'nextTick')
         }
       } else if (_resolve) {
-        _resolve(ctx)
+        _resolve(ctx)   //执行promise的then方法
       }
     })
-    if (!pending) {
+    if (!pending) {    //确保只执行一次
       pending = true
       timerFunc()
     }
     // $flow-disable-line
-    if (!cb && typeof Promise !== 'undefined') {
+    if (!cb && typeof Promise !== 'undefined') {   //promise实现
       return new Promise((resolve, reject) => {
         _resolve = resolve
       })

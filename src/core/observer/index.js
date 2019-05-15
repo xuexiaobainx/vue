@@ -43,10 +43,10 @@ export class Observer {
     this.vmCount = 0
     def(value, '__ob__', this)        //用来给对象设置属性，这里把__ob__设置成不可枚举的属性了，在下面的walk方法中就不会遍历到__ob__属性
     if (Array.isArray(value)) {     //value是array的处理
-      const augment = hasProto
-        ? protoAugment
-        : copyAugment
-      augment(value, arrayMethods, arrayKeys)
+      const augment = hasProto     //是否有原型
+        ? protoAugment            //有原型则使用封装了notify方法的原型对象
+        : copyAugment             //没有原型则用defineProperty来实现变化检测
+      augment(value, arrayMethods, arrayKeys)    //目的就是调用数组api改变数据的时候可以更新视图
       this.observeArray(value)
     } else {                       //value是object的处理
       this.walk(value)
@@ -179,7 +179,7 @@ export function defineReactive (    //把属性变成响应式
       } else {
         val = newVal
       }
-      childOb = !shallow && observe(newVal)     //给新值创建observe
+      childOb = !shallow && observe(newVal)     //给新值对象递归创建observe
       dep.notify()    //派发更新
     }
   })
@@ -190,10 +190,10 @@ export function defineReactive (    //把属性变成响应式
  * triggers change notification if the property doesn't
  * already exist.
  */
-export function set (target: Array<any> | Object, key: any, val: any): any {
-  if (Array.isArray(target) && isValidArrayIndex(key)) {
+export function set (target: Array<any> | Object, key: any, val: any): any {    //增删改对象的属性或者通过下标改数组是无法触发更新的，可以通过这个Vue.set方法或重写过的数组api来实现
+  if (Array.isArray(target) && isValidArrayIndex(key)) {     //数组的set过程
     target.length = Math.max(target.length, key)
-    target.splice(key, 1, val)
+    target.splice(key, 1, val)     //替换
     return val
   }
   if (hasOwn(target, key)) {
@@ -201,19 +201,19 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     return val
   }
   const ob = (target: any).__ob__
-  if (target._isVue || (ob && ob.vmCount)) {
+  if (target._isVue || (ob && ob.vmCount)) {    //避免对Vue实例或者根实例进行set修改
     process.env.NODE_ENV !== 'production' && warn(
       'Avoid adding reactive properties to a Vue instance or its root $data ' +
       'at runtime - declare it upfront in the data option.'
     )
     return val
   }
-  if (!ob) {
+  if (!ob) {    //不是已被观测的响应式对象，就直接赋值
     target[key] = val
     return val
   }
-  defineReactive(ob.value, key, val)
-  ob.dep.notify()
+  defineReactive(ob.value, key, val)    //defineProperty，变成响应式对象
+  ob.dep.notify()     //手动调用更新通知
   return val
 }
 

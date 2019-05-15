@@ -50,8 +50,8 @@ export default class Watcher {
     // options
     if (options) {
       this.deep = !!options.deep
-      this.user = !!options.user
-      this.lazy = !!options.lazy
+      this.user = !!options.user     //是不是user watcher
+      this.lazy = !!options.lazy     //是不是computed watcher
       this.sync = !!options.sync
     } else {
       this.deep = this.user = this.lazy = this.sync = false
@@ -70,8 +70,8 @@ export default class Watcher {
     // parse expression for getter
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn         /*updateComponent赋值给getter,之后每次更新视图都会调用 */
-    } else {
-      this.getter = parsePath(expOrFn)
+    } else {           //传入的expOrFn如果是字符串
+      this.getter = parsePath(expOrFn)    //通过路径在vm上面查找属性
       if (!this.getter) {
         this.getter = function () {}
         process.env.NODE_ENV !== 'production' && warn(
@@ -82,7 +82,7 @@ export default class Watcher {
         )
       }
     }
-    this.value = this.lazy
+    this.value = this.lazy    //创建computed watcher时这里初始化为undefined，并不会执行get()方法立刻求值
       ? undefined
       : this.get()
   }
@@ -95,7 +95,7 @@ export default class Watcher {
     let value
     const vm = this.vm
     try {
-      value = this.getter.call(vm, vm)     /*执行传进来的updateComponent方法 */
+      value = this.getter.call(vm, vm)     /*执行new Watcher的时候传进来的方法，比如updateComponent */
     } catch (e) {
       if (this.user) {
         handleError(e, vm, `getter for watcher "${this.expression}"`)
@@ -106,7 +106,7 @@ export default class Watcher {
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
       if (this.deep) {
-        traverse(value)
+        traverse(value)   //遍历深层属性，收集deep依赖
       }
       popTarget()    //把刚才放进去的当前watcher删除
       this.cleanupDeps()
@@ -155,9 +155,9 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
-    if (this.lazy) {
+    if (this.lazy) {       //computed属性
       this.dirty = true
-    } else if (this.sync) {
+    } else if (this.sync) {    //同步异步watcher？
       this.run()
     } else {
       queueWatcher(this)    //处理当前watcher
@@ -170,9 +170,9 @@ export default class Watcher {
    */
   run () {
     if (this.active) {
-      const value = this.get()
+      const value = this.get()    //获取当前值
       if (
-        value !== this.value ||
+        value !== this.value ||         
         // Deep watchers and watchers on Object/Arrays should fire even
         // when the value is the same, because the value may
         // have mutated.
@@ -182,9 +182,9 @@ export default class Watcher {
         // set new value
         const oldValue = this.value
         this.value = value
-        if (this.user) {
+        if (this.user) {     //如果是user watcher
           try {
-            this.cb.call(this.vm, value, oldValue)
+            this.cb.call(this.vm, value, oldValue)     //执行回调
           } catch (e) {
             handleError(e, this.vm, `callback for watcher "${this.expression}"`)
           }
@@ -201,7 +201,7 @@ export default class Watcher {
    */
   evaluate () {
     this.value = this.get()
-    this.dirty = false
+    this.dirty = false      //每求值一次，this.dirty置为false
   }
 
   /**
@@ -210,7 +210,7 @@ export default class Watcher {
   depend () {
     let i = this.deps.length
     while (i--) {
-      this.deps[i].depend()
+      this.deps[i].depend()    //对当前watcher的每一个dep都执行depend方法
     }
   }
 
@@ -239,8 +239,8 @@ export default class Watcher {
  * getters, so that every nested property inside the object
  * is collected as a "deep" dependency.
  */
-const seenObjects = new Set()
-function traverse (val: any) {
+const seenObjects = new Set()     //
+function traverse (val: any) {     //递归遍历嵌套的对象来调用所有getter，使对象中的每个嵌套属性被收集为“深度”依赖
   seenObjects.clear()
   _traverse(val, seenObjects)
 }
@@ -264,6 +264,6 @@ function _traverse (val: any, seen: ISet) {
   } else {
     keys = Object.keys(val)
     i = keys.length
-    while (i--) _traverse(val[keys[i]], seen)
+    while (i--) _traverse(val[keys[i]], seen)    //递归
   }
 }

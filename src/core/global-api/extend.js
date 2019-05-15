@@ -55,7 +55,7 @@ export function initExtend (Vue: GlobalAPI) {
     if (Sub.options.props) {
       initProps(Sub)
     }
-    if (Sub.options.computed) {
+    if (Sub.options.computed) {     //如果有computed，就在这里提前初始化计算属性
       initComputed(Sub)
     }
 
@@ -97,6 +97,6 @@ function initProps (Comp) {
 function initComputed (Comp) {
   const computed = Comp.options.computed
   for (const key in computed) {
-    defineComputed(Comp.prototype, key, computed[key])
+    defineComputed(Comp.prototype, key, computed[key])   //在组件的原型上挂载computed属性，便于多组件共享访问
   }
 }
