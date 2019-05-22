@@ -9,7 +9,7 @@ import {
 
 function transformNode (el: ASTElement, options: CompilerOptions) {
   const warn = options.warn || baseWarn
-  const staticClass = getAndRemoveAttr(el, 'class')
+  const staticClass = getAndRemoveAttr(el, 'class')    //获取节点的class
   if (process.env.NODE_ENV !== 'production' && staticClass) {
     const expression = parseText(staticClass, options.delimiters)
     if (expression) {
@@ -22,11 +22,11 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
     }
   }
   if (staticClass) {
-    el.staticClass = JSON.stringify(staticClass)
+    el.staticClass = JSON.stringify(staticClass)     //设置静态class
   }
   const classBinding = getBindingAttr(el, 'class', false /* getStatic */)
   if (classBinding) {
-    el.classBinding = classBinding
+    el.classBinding = classBinding              //设置绑定属性
   }
 }
 

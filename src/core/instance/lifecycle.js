@@ -57,10 +57,10 @@ export function lifecycleMixin (Vue: Class<Component>) {
     const prevVnode = vm._vnode
     const prevActiveInstance = activeInstance    //记录上一个
     activeInstance = vm     //每次记录当前实例，用于创建父子关系
-    vm._vnode = vnode
+    vm._vnode = vnode     //第一次要保留渲染vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
-    if (!prevVnode) {
+    if (!prevVnode) {     //第二次调用update时preNode就有值了
       // initial render
       vm.$el = vm.__patch__(     /*$el是真实dom */
         vm.$el, vnode, hydrating, false /* removeOnly */,

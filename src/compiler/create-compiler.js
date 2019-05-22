@@ -17,7 +17,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
         (tip ? tips : errors).push(msg)
       }
 
-      if (options) {
+      if (options) {    //merge过程
         // merge custom modules
         if (options.modules) {
           finalOptions.modules =
@@ -38,7 +38,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
         }
       }
 
-      const compiled = baseCompile(template, finalOptions)
+      const compiled = baseCompile(template, finalOptions)     //传入的baseCompile编译过程在这里被调用
       if (process.env.NODE_ENV !== 'production') {
         errors.push.apply(errors, detectErrors(compiled.ast))
       }

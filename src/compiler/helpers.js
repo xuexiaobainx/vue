@@ -108,7 +108,7 @@ export function getBindingAttr (
 // doesn't get processed by processAttrs.
 // By default it does NOT remove it from the map (attrsMap) because the map is
 // needed during codegen.
-export function getAndRemoveAttr (
+export function getAndRemoveAttr (   //移除属性
   el: ASTElement,
   name: string,
   removeFromMap?: boolean
@@ -118,7 +118,7 @@ export function getAndRemoveAttr (
     const list = el.attrsList
     for (let i = 0, l = list.length; i < l; i++) {
       if (list[i].name === name) {
-        list.splice(i, 1)
+        list.splice(i, 1)     //删除
         break
       }
     }
@@ -126,5 +126,5 @@ export function getAndRemoveAttr (
   if (removeFromMap) {
     delete el.attrsMap[name]
   }
-  return val
+  return val     //返回移除的属性，用来解析
 }

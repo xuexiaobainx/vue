@@ -13,13 +13,13 @@ import { makeMap, no } from 'shared/util'
 import { isNonPhrasingTag } from 'web/compiler/util'
 
 // Regular Expressions for parsing tags and attributes
-const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
+const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/   //匹配属性
 // could use https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-QName
 // but for Vue templates we can enforce a simple charset
 const ncname = '[a-zA-Z_][\\w\\-\\.]*'
-const qnameCapture = `((?:${ncname}\\:)?${ncname})`
+const qnameCapture = `((?:${ncname}\\:)?${ncname})`    //括号括起来是定义用来捕获标签名的捕获组，这里是捕获了标签名
 const startTagOpen = new RegExp(`^<${qnameCapture}`)
-const startTagClose = /^\s*(\/?)>/
+const startTagClose = /^\s*(\/?)>/      //匹配开始标签的>：包括自闭和标签，这里需要捕获"/"来判断是不是自封闭
 const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`)
 const doctype = /^<!DOCTYPE [^>]+>/i
 const comment = /^<!--/
@@ -54,27 +54,27 @@ function decodeAttr (value, shouldDecodeNewlines) {
 }
 
 export function parseHTML (html, options) {
-  const stack = []
+  const stack = []      //一次存放解析到的开始标签，栈操作
   const expectHTML = options.expectHTML
   const isUnaryTag = options.isUnaryTag || no
   const canBeLeftOpenTag = options.canBeLeftOpenTag || no
   let index = 0
-  let last, lastTag
+  let last, lastTag    //上次解析的文本，上次解析的标签
   while (html) {
     last = html
     // Make sure we're not in a plaintext content element like script/style
     if (!lastTag || !isPlainTextElement(lastTag)) {
-      let textEnd = html.indexOf('<')
+      let textEnd = html.indexOf('<')    //找<的位置
       if (textEnd === 0) {
         // Comment:
-        if (comment.test(html)) {
-          const commentEnd = html.indexOf('-->')
+        if (comment.test(html)) {     //匹配为注释节点
+          const commentEnd = html.indexOf('-->')     //找注释节点的结束符
 
-          if (commentEnd >= 0) {
+          if (commentEnd >= 0) {       
             if (options.shouldKeepComment) {
-              options.comment(html.substring(4, commentEnd))
+              options.comment(html.substring(4, commentEnd))    //解析注释节点
             }
-            advance(commentEnd + 3)
+            advance(commentEnd + 3)    //解析完之后往后截取
             continue
           }
         }
@@ -90,23 +90,23 @@ export function parseHTML (html, options) {
         }
 
         // Doctype:
-        const doctypeMatch = html.match(doctype)
+        const doctypeMatch = html.match(doctype)     //匹配doctype
         if (doctypeMatch) {
           advance(doctypeMatch[0].length)
           continue
         }
 
         // End tag:
-        const endTagMatch = html.match(endTag)
+        const endTagMatch = html.match(endTag)     //匹配结束标签
         if (endTagMatch) {
           const curIndex = index
-          advance(endTagMatch[0].length)
+          advance(endTagMatch[0].length)     //匹配到结束标签，直接前进长度
           parseEndTag(endTagMatch[1], curIndex, index)
           continue
         }
 
         // Start tag:
-        const startTagMatch = parseStartTag()
+        const startTagMatch = parseStartTag()    //匹配开始标签
         if (startTagMatch) {
           handleStartTag(startTagMatch)
           if (shouldIgnoreFirstNewline(lastTag, html)) {
@@ -117,16 +117,16 @@ export function parseHTML (html, options) {
       }
 
       let text, rest, next
-      if (textEnd >= 0) {
-        rest = html.slice(textEnd)
-        while (
+      if (textEnd >= 0) {             //处理文本
+        rest = html.slice(textEnd)      //除去文本内容以外
+        while (                          //循环排除<文本，知道找到真正的结束标签
           !endTag.test(rest) &&
           !startTagOpen.test(rest) &&
           !comment.test(rest) &&
           !conditionalComment.test(rest)
         ) {
           // < in plain text, be forgiving and treat it as text
-          next = rest.indexOf('<', 1)
+          next = rest.indexOf('<', 1)          
           if (next < 0) break
           textEnd += next
           rest = html.slice(textEnd)
@@ -135,7 +135,7 @@ export function parseHTML (html, options) {
         advance(textEnd)
       }
 
-      if (textEnd < 0) {
+      if (textEnd < 0) {      //解析完了
         text = html
         html = ''
       }
@@ -179,27 +179,27 @@ export function parseHTML (html, options) {
   // Clean up any remaining tags
   parseEndTag()
 
-  function advance (n) {
+  function advance (n) {    //截断解析的字符串，往后移动index
     index += n
     html = html.substring(n)
   }
 
   function parseStartTag () {
-    const start = html.match(startTagOpen)
+    const start = html.match(startTagOpen)     //匹配开始标签，
     if (start) {
       const match = {
-        tagName: start[1],
+        tagName: start[1],     //第0个就是匹配到的捕获组，标签名
         attrs: [],
         start: index
       }
-      advance(start[0].length)
+      advance(start[0].length)    //html前移到标签名后面,比如<ul
       let end, attr
-      while (!(end = html.match(startTagClose)) && (attr = html.match(attribute))) {
+      while (!(end = html.match(startTagClose)) && (attr = html.match(attribute))) {   //匹配属性
         advance(attr[0].length)
         match.attrs.push(attr)
       }
       if (end) {
-        match.unarySlash = end[1]
+        match.unarySlash = end[1]    //用来判定是否是自封闭标签
         advance(end[0].length)
         match.end = index
         return match
@@ -212,18 +212,18 @@ export function parseHTML (html, options) {
     const unarySlash = match.unarySlash
 
     if (expectHTML) {
-      if (lastTag === 'p' && isNonPhrasingTag(tagName)) {
+      if (lastTag === 'p' && isNonPhrasingTag(tagName)) {   //如果p标签内有不合规定的节点，就直接闭合这个p标签解析，把里面的节点取出来
         parseEndTag(lastTag)
       }
-      if (canBeLeftOpenTag(tagName) && lastTag === tagName) {
+      if (canBeLeftOpenTag(tagName) && lastTag === tagName) {      //例如p嵌套p标签
         parseEndTag(tagName)
       }
     }
 
-    const unary = isUnaryTag(tagName) || !!unarySlash
+    const unary = isUnaryTag(tagName) || !!unarySlash   //判断自封闭标签
 
     const l = match.attrs.length
-    const attrs = new Array(l)
+    const attrs = new Array(l)       //新建一个数组
     for (let i = 0; i < l; i++) {
       const args = match.attrs[i]
       // hackish work around FF bug https://bugzilla.mozilla.org/show_bug.cgi?id=369778
@@ -232,7 +232,7 @@ export function parseHTML (html, options) {
         if (args[4] === '') { delete args[4] }
         if (args[5] === '') { delete args[5] }
       }
-      const value = args[3] || args[4] || args[5] || ''
+      const value = args[3] || args[4] || args[5] || ''     //捕获的后三个分组
       attrs[i] = {
         name: args[1],
         value: decodeAttr(
@@ -243,7 +243,7 @@ export function parseHTML (html, options) {
     }
 
     if (!unary) {
-      stack.push({ tag: tagName, lowerCasedTag: tagName.toLowerCase(), attrs: attrs })
+      stack.push({ tag: tagName, lowerCasedTag: tagName.toLowerCase(), attrs: attrs })   //非自封闭标签封装后推入栈中
       lastTag = tagName
     }
 
@@ -263,8 +263,8 @@ export function parseHTML (html, options) {
 
     // Find the closest opened tag of the same type
     if (tagName) {
-      for (pos = stack.length - 1; pos >= 0; pos--) {
-        if (stack[pos].lowerCasedTag === lowerCasedTagName) {
+      for (pos = stack.length - 1; pos >= 0; pos--) {    
+        if (stack[pos].lowerCasedTag === lowerCasedTagName) {   //检查当前这个结束标签能匹配到的stack里面已经解析过的标签
           break
         }
       }
@@ -273,15 +273,15 @@ export function parseHTML (html, options) {
       pos = 0
     }
 
-    if (pos >= 0) {
+    if (pos >= 0) {    //已经匹配到相应的开始标签
       // Close all the open elements, up the stack
-      for (let i = stack.length - 1; i >= pos; i--) {
+      for (let i = stack.length - 1; i >= pos; i--) {    //pos到length-1位置的
         if (process.env.NODE_ENV !== 'production' &&
-          (i > pos || !tagName) &&
+          (i > pos || !tagName) &&      //匹配到的成对的开始标签后面还有未匹配的开始标签，说明后面那个开始标签没有对应的结束标签
           options.warn
         ) {
           options.warn(
-            `tag <${stack[i].tag}> has no matching end tag.`
+            `tag <${stack[i].tag}> has no matching end tag.`     //报错没有结束标签
           )
         }
         if (options.end) {

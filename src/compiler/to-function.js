@@ -22,7 +22,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
     [key: string]: CompiledFunctionResult;
   } = Object.create(null)
 
-  return function compileToFunctions (
+  return function compileToFunctions (     //mount时候调用的compileToFunctions实际上是执行了这个compileToFunctions
     template: string,
     options?: CompilerOptions,
     vm?: Component
@@ -53,12 +53,12 @@ export function createCompileToFunctionFn (compile: Function): Function {
     const key = options.delimiters
       ? String(options.delimiters) + template
       : template
-    if (cache[key]) {
+    if (cache[key]) {     //缓存机制，避免重复编译
       return cache[key]
     }
 
     // compile
-    const compiled = compile(template, options)
+    const compiled = compile(template, options)    //编译啦
 
     // check compilation errors/tips
     if (process.env.NODE_ENV !== 'production') {
@@ -77,7 +77,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
     // turn code into functions
     const res = {}
     const fnGenErrors = []
-    res.render = createFunction(compiled.render, fnGenErrors)
+    res.render = createFunction(compiled.render, fnGenErrors)   //把静态的render字符串转化成动态方法
     res.staticRenderFns = compiled.staticRenderFns.map(code => {
       return createFunction(code, fnGenErrors)
     })
@@ -96,6 +96,6 @@ export function createCompileToFunctionFn (compile: Function): Function {
       }
     }
 
-    return (cache[key] = res)
+    return (cache[key] = res)   //返回编译结果并缓存
   }
 }

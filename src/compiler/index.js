@@ -11,10 +11,10 @@ import { createCompilerCreator } from './create-compiler'
 export const createCompiler = createCompilerCreator(function baseCompile (
   template: string,
   options: CompilerOptions
-): CompiledResult {
-  const ast = parse(template.trim(), options)
-  optimize(ast, options)
-  const code = generate(ast, options)
+): CompiledResult {       //这里是真正执行编译的核心过程
+  const ast = parse(template.trim(), options)    //生成ast
+  optimize(ast, options)                         //扩展优化ast
+  const code = generate(ast, options)      //生成render函数
   return {
     ast,
     render: code.render,

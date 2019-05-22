@@ -31,7 +31,7 @@ export const emptyNode = new VNode('', {}, [])
 
 const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
 
-function sameVnode (a, b) {
+function sameVnode (a, b) {   //判断两个vnode是不是同一个vnode
   return (
     a.key === b.key && (
       (
@@ -267,7 +267,7 @@ export function createPatchFunction (backend) {
   }
 
   function isPatchable (vnode) {
-    while (vnode.componentInstance) {
+    while (vnode.componentInstance) {     //组件vnode
       vnode = vnode.componentInstance._vnode
     }
     return isDef(vnode.tag)
@@ -372,14 +372,14 @@ export function createPatchFunction (backend) {
       removeNode(vnode.elm)
     }
   }
-
+  //传说中的节点diff算法
   function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
     let oldStartIdx = 0
     let newStartIdx = 0
-    let oldEndIdx = oldCh.length - 1
+    let oldEndIdx = oldCh.length - 1     //旧节点最后的index
     let oldStartVnode = oldCh[0]
     let oldEndVnode = oldCh[oldEndIdx]
-    let newEndIdx = newCh.length - 1
+    let newEndIdx = newCh.length - 1     //新节点最后的index
     let newStartVnode = newCh[0]
     let newEndVnode = newCh[newEndIdx]
     let oldKeyToIdx, idxInOld, vnodeToMove, refElm
@@ -389,7 +389,7 @@ export function createPatchFunction (backend) {
     // during leaving transitions
     const canMove = !removeOnly
 
-    while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+    while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {    //循环边界条件
       if (isUndef(oldStartVnode)) {
         oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
       } else if (isUndef(oldEndVnode)) {
@@ -409,9 +409,9 @@ export function createPatchFunction (backend) {
         newEndVnode = newCh[--newEndIdx]
       } else if (sameVnode(oldEndVnode, newStartVnode)) { // Vnode moved left
         patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue)
-        canMove && nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)
-        oldEndVnode = oldCh[--oldEndIdx]
-        newStartVnode = newCh[++newStartIdx]
+        canMove && nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm) //旧节点的最后一个插到第一个之前
+        oldEndVnode = oldCh[--oldEndIdx]   //长度缩短
+        newStartVnode = newCh[++newStartIdx]  
       } else {
         if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
         idxInOld = isDef(newStartVnode.key)
@@ -440,7 +440,7 @@ export function createPatchFunction (backend) {
         newStartVnode = newCh[++newStartIdx]
       }
     }
-    if (oldStartIdx > oldEndIdx) {
+    if (oldStartIdx > oldEndIdx) {    //还有补充节点需要插入
       refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm
       addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue)
     } else if (newStartIdx > newEndIdx) {
@@ -460,7 +460,7 @@ export function createPatchFunction (backend) {
       return
     }
 
-    const elm = vnode.elm = oldVnode.elm
+    const elm = vnode.elm = oldVnode.elm   
 
     if (isTrue(oldVnode.isAsyncPlaceholder)) {
       if (isDef(vnode.asyncFactory.resolved)) {
@@ -486,32 +486,32 @@ export function createPatchFunction (backend) {
 
     let i
     const data = vnode.data
-    if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
+    if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {   //是一个组件vnode,定义了prepatch这个hook
       i(oldVnode, vnode)
     }
 
     const oldCh = oldVnode.children
     const ch = vnode.children
     if (isDef(data) && isPatchable(vnode)) {
-      for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
+      for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)   //执行update钩子
       if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
     }
-    if (isUndef(vnode.text)) {
-      if (isDef(oldCh) && isDef(ch)) {
+    if (isUndef(vnode.text)) {    
+      if (isDef(oldCh) && isDef(ch)) {    //新旧节点的chidren同时存在
         if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
-      } else if (isDef(ch)) {
-        if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
-        addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
-      } else if (isDef(oldCh)) {
+      } else if (isDef(ch)) {         //只有新节点
+        if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')   //清空旧节点的文本
+        addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)   //插入新节点
+      } else if (isDef(oldCh)) {     //只有旧节点，直接删掉
         removeVnodes(elm, oldCh, 0, oldCh.length - 1)
-      } else if (isDef(oldVnode.text)) {
-        nodeOps.setTextContent(elm, '')
+      } else if (isDef(oldVnode.text)) {    //新旧节点都没有child
+        nodeOps.setTextContent(elm, '')    //清空旧节点
       }
-    } else if (oldVnode.text !== vnode.text) {
+    } else if (oldVnode.text !== vnode.text) {    //已经是最内层节点了，更新text
       nodeOps.setTextContent(elm, vnode.text)
     }
     if (isDef(data)) {
-      if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)
+      if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)   //执行postpatch钩子
     }
   }
   
@@ -642,9 +642,9 @@ export function createPatchFunction (backend) {
       // empty mount (likely as component), create new root element
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue, parentElm, refElm)
-    } else {
-      const isRealElement = isDef(oldVnode.nodeType)   /*判断是否真实dom */
-      if (!isRealElement && sameVnode(oldVnode, vnode)) {
+    } else {        //更新时候走这个逻辑
+      const isRealElement = isDef(oldVnode.nodeType)   /*判断是否真实dom节点 */
+      if (!isRealElement && sameVnode(oldVnode, vnode)) {    //新旧vnode相同
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
       } else {
@@ -675,9 +675,9 @@ export function createPatchFunction (backend) {
           oldVnode = emptyNodeAt(oldVnode)    /*new一个空的vNode节点替换掉 */
         }
         // replacing existing element
-        const oldElm = oldVnode.elm     /*原来的真实dom */
+        const oldElm = oldVnode.elm     /*获取原来的真实dom */
         const parentElm = nodeOps.parentNode(oldElm)   /*找父节点 */
-        createElm(
+        createElm(           //创建新节点
           vnode,
           insertedVnodeQueue,
           // extremely rare edge case: do not insert if old element is in a
@@ -687,7 +687,7 @@ export function createPatchFunction (backend) {
           nodeOps.nextSibling(oldElm)
         )
 
-        if (isDef(vnode.parent)) {
+        if (isDef(vnode.parent)) {        //递归更新父占位符节点
           // component root element replaced.
           // update parent placeholder node element, recursively
           let ancestor = vnode.parent
@@ -718,7 +718,7 @@ export function createPatchFunction (backend) {
           }
         }
 
-        if (isDef(parentElm)) {
+        if (isDef(parentElm)) {     //删除旧节点
           removeVnodes(parentElm, [oldVnode], 0, 0)
         } else if (isDef(oldVnode.tag)) {
           invokeDestroyHook(oldVnode)

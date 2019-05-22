@@ -15,7 +15,7 @@ const idToTemplate = cached(id => {
 })
 
 const mount = Vue.prototype.$mount        
-Vue.prototype.$mount = function (     /*runtime-only版本和compiler版本的mount方法实现不同，这里重新定义了一遍 */
+Vue.prototype.$mount = function (     /*runtime-only版本和compiler版本的mount方法实现不同，这里重新定义了一遍compiler版本的mount */
   el?: string | Element,
   hydrating?: boolean
 ): Component {
@@ -77,7 +77,7 @@ Vue.prototype.$mount = function (     /*runtime-only版本和compiler版本的mo
       }
     }
   }
-  return mount.call(this, el, hydrating)     /*最后都是走到runtime版的基本的mount方法 */
+  return mount.call(this, el, hydrating)     /*最后都是走到runtime-only版的基本的mount方法 */
 }
 
 /**

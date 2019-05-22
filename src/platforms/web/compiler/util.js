@@ -15,7 +15,7 @@ export const canBeLeftOpenTag = makeMap(
 
 // HTML5 tags https://html.spec.whatwg.org/multipage/indices.html#elements-3
 // Phrasing Content https://html.spec.whatwg.org/multipage/dom.html#phrasing-content
-export const isNonPhrasingTag = makeMap(
+export const isNonPhrasingTag = makeMap(       //规定了不能放在<p></p>标签内的元素
   'address,article,aside,base,blockquote,body,caption,col,colgroup,dd,' +
   'details,dialog,div,dl,dt,fieldset,figcaption,figure,footer,form,' +
   'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,legend,li,menuitem,meta,' +

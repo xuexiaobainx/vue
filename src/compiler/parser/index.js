@@ -21,8 +21,8 @@ import {
 
 export const onRE = /^@|^v-on:/
 export const dirRE = /^v-|^@|^:/
-export const forAliasRE = /(.*?)\s+(?:in|of)\s+(.*)/
-export const forIteratorRE = /\((\{[^}]*\}|[^,]*),([^,]*)(?:,([^,]*))?\)/
+export const forAliasRE = /(.*?)\s+(?:in|of)\s+(.*)/         //匹配for循环语句
+export const forIteratorRE = /\((\{[^}]*\}|[^,]*),([^,]*)(?:,([^,]*))?\)/    //捕获循环去除括号的"item, index"
 
 const argRE = /:(.*)$/
 const bindRE = /^:|^v-bind:/
@@ -48,7 +48,7 @@ export function createASTElement (
   parent: ASTElement | void
 ): ASTElement {
   return {
-    type: 1,
+    type: 1,     //1表示普通元素节点
     tag,
     attrsList: attrs,
     attrsMap: makeAttrsMap(attrs),
@@ -70,9 +70,9 @@ export function parse (
   platformMustUseProp = options.mustUseProp || no
   platformGetTagNamespace = options.getTagNamespace || no
 
-  transforms = pluckModuleFunction(options.modules, 'transformNode')
-  preTransforms = pluckModuleFunction(options.modules, 'preTransformNode')
-  postTransforms = pluckModuleFunction(options.modules, 'postTransformNode')
+  transforms = pluckModuleFunction(options.modules, 'transformNode')    //这几个函数是拉取模块函数。最后返回一个函数数组
+  preTransforms = pluckModuleFunction(options.modules, 'preTransformNode')    
+  postTransforms = pluckModuleFunction(options.modules, 'postTransformNode')   //web端没有这个，weex端有
 
   delimiters = options.delimiters
 
@@ -107,8 +107,8 @@ export function parse (
     isUnaryTag: options.isUnaryTag,
     canBeLeftOpenTag: options.canBeLeftOpenTag,
     shouldDecodeNewlines: options.shouldDecodeNewlines,
-    shouldKeepComment: options.comments,
-    start (tag, attrs, unary) {
+    shouldKeepComment: options.comments,      //是否保留注释节点
+    start (tag, attrs, unary) {       //创建ast element,构建ast tree
       // check namespace.
       // inherit parent ns if there is one
       const ns = (currentParent && currentParent.ns) || platformGetTagNamespace(tag)
@@ -119,12 +119,12 @@ export function parse (
         attrs = guardIESVGBug(attrs)
       }
 
-      let element: ASTElement = createASTElement(tag, attrs, currentParent)
+      let element: ASTElement = createASTElement(tag, attrs, currentParent)    //创建ast元素
       if (ns) {
         element.ns = ns
       }
 
-      if (isForbiddenTag(element) && !isServerRendering()) {
+      if (isForbiddenTag(element) && !isServerRendering()) {    //style标签或者script标签这种的
         element.forbidden = true
         process.env.NODE_ENV !== 'production' && warn(
           'Templates should only be responsible for mapping the state to the ' +
@@ -139,7 +139,7 @@ export function parse (
       }
 
       if (!inVPre) {
-        processPre(element)
+        processPre(element)      //检查v-pre指令
         if (element.pre) {
           inVPre = true
         }
@@ -151,9 +151,9 @@ export function parse (
         processRawAttrs(element)
       } else if (!element.processed) {
         // structural directives
-        processFor(element)
-        processIf(element)
-        processOnce(element)
+        processFor(element)    //解析v-for表达式
+        processIf(element)     //解析v-if表达式
+        processOnce(element)    //解析once表达式
         // element-scope stuff
         processElement(element, options)
       }
@@ -176,7 +176,7 @@ export function parse (
       }
 
       // tree management
-      if (!root) {
+      if (!root) {     //ast树的根节点
         root = element
         checkRootConstraints(root)
       } else if (!stack.length) {
@@ -189,7 +189,7 @@ export function parse (
           })
         } else if (process.env.NODE_ENV !== 'production') {
           warnOnce(
-            `Component template should contain exactly one root element. ` +
+            `Component template should contain exactly one root element. ` +   //组件模板只能有一个根节点
             `If you are using v-if on multiple elements, ` +
             `use v-else-if to chain them instead.`
           )
@@ -219,29 +219,29 @@ export function parse (
       }
     },
 
-    end () {
+    end () {        //解析end标签调用
       // remove trailing whitespace
-      const element = stack[stack.length - 1]
+      const element = stack[stack.length - 1]       //获取最后一个push的开始标签
       const lastNode = element.children[element.children.length - 1]
       if (lastNode && lastNode.type === 3 && lastNode.text === ' ' && !inPre) {
         element.children.pop()
       }
       // pop stack
-      stack.length -= 1
+      stack.length -= 1    
       currentParent = stack[stack.length - 1]
       endPre(element)
     },
 
-    chars (text: string) {
+    chars (text: string) {        //解析文本节点
       if (!currentParent) {
         if (process.env.NODE_ENV !== 'production') {
           if (text === template) {
             warnOnce(
-              'Component template requires a root element, rather than just text.'
+              'Component template requires a root element, rather than just text.'     //模板只有文本报错
             )
           } else if ((text = text.trim())) {
             warnOnce(
-              `text "${text}" outside root element will be ignored.`
+              `text "${text}" outside root element will be ignored.`    //文本定义在更节点之外
             )
           }
         }
@@ -270,13 +270,13 @@ export function parse (
           })
         } else if (text !== ' ' || !children.length || children[children.length - 1].text !== ' ') {
           children.push({
-            type: 3,
+            type: 3,      //创建一个纯文本节点
             text
           })
         }
       }
     },
-    comment (text: string) {
+    comment (text: string) {         //解析注释节点
       currentParent.children.push({
         type: 3,
         text,
@@ -314,7 +314,7 @@ export function processElement (element: ASTElement, options: CompilerOptions) {
 
   // determine whether this is a plain element after
   // removing structural attributes
-  element.plain = !element.key && !element.attrsList.length
+  element.plain = !element.key && !element.attrsList.length     //不是一个纯文本
 
   processRef(element)
   processSlot(element)
@@ -322,7 +322,7 @@ export function processElement (element: ASTElement, options: CompilerOptions) {
   for (let i = 0; i < transforms.length; i++) {
     element = transforms[i](element, options) || element
   }
-  processAttrs(element)
+  processAttrs(element)     //其他属性例如@click
 }
 
 function processKey (el) {
@@ -349,16 +349,16 @@ export function processFor (el: ASTElement) {
     const inMatch = exp.match(forAliasRE)
     if (!inMatch) {
       process.env.NODE_ENV !== 'production' && warn(
-        `Invalid v-for expression: ${exp}`
+        `Invalid v-for expression: ${exp}`      //没写循环表达式
       )
       return
     }
-    el.for = inMatch[2].trim()
-    const alias = inMatch[1].trim()
-    const iteratorMatch = alias.match(forIteratorRE)
+    el.for = inMatch[2].trim()      //遍历的data
+    const alias = inMatch[1].trim()    //返回例如(item, index)
+    const iteratorMatch = alias.match(forIteratorRE)  
     if (iteratorMatch) {
-      el.alias = iteratorMatch[1].trim()
-      el.iterator1 = iteratorMatch[2].trim()
+      el.alias = iteratorMatch[1].trim()      //返回item
+      el.iterator1 = iteratorMatch[2].trim()    //返回idnex
       if (iteratorMatch[3]) {
         el.iterator2 = iteratorMatch[3].trim()
       }
@@ -368,11 +368,11 @@ export function processFor (el: ASTElement) {
   }
 }
 
-function processIf (el) {
+function processIf (el) {     //el为ast element
   const exp = getAndRemoveAttr(el, 'v-if')
   if (exp) {
     el.if = exp
-    addIfCondition(el, {
+    addIfCondition(el, {     //添加条件
       exp: exp,
       block: el
     })
@@ -579,7 +579,7 @@ function parseModifiers (name: string): Object | void {
   }
 }
 
-function makeAttrsMap (attrs: Array<Object>): Object {
+function makeAttrsMap (attrs: Array<Object>): Object {    //把属性数组转换成对象
   const map = {}
   for (let i = 0, l = attrs.length; i < l; i++) {
     if (

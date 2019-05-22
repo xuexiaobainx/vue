@@ -18,14 +18,14 @@ const genStaticKeysCached = cached(genStaticKeys)
  *    create fresh nodes for them on each re-render;
  * 2. Completely skip them in the patching process.
  */
-export function optimize (root: ?ASTElement, options: CompilerOptions) {
+export function optimize (root: ?ASTElement, options: CompilerOptions) {      //优化ast的构建过程
   if (!root) return
   isStaticKey = genStaticKeysCached(options.staticKeys || '')
   isPlatformReservedTag = options.isReservedTag || no
   // first pass: mark all non-static nodes.
-  markStatic(root)
+  markStatic(root)      //标记所有非静态节点
   // second pass: mark static roots.
-  markStaticRoots(root, false)
+  markStaticRoots(root, false)    //标记静态根
 }
 
 function genStaticKeys (keys: string): Function {
@@ -37,7 +37,7 @@ function genStaticKeys (keys: string): Function {
 
 function markStatic (node: ASTNode) {
   node.static = isStatic(node)
-  if (node.type === 1) {
+  if (node.type === 1) {       //元素的ast
     // do not make component slot content static. this avoids
     // 1. components not able to mutate slot nodes
     // 2. static slot content fails for hot-reloading
@@ -51,7 +51,7 @@ function markStatic (node: ASTNode) {
     for (let i = 0, l = node.children.length; i < l; i++) {
       const child = node.children[i]
       markStatic(child)
-      if (!child.static) {
+      if (!child.static) {     //深度遍历直到找到一个非static，那整个node都是非static
         node.static = false
       }
     }
@@ -67,7 +67,7 @@ function markStatic (node: ASTNode) {
   }
 }
 
-function markStaticRoots (node: ASTNode, isInFor: boolean) {
+function markStaticRoots (node: ASTNode, isInFor: boolean) {    //最外层节点isInFor为false
   if (node.type === 1) {
     if (node.static || node.once) {
       node.staticInFor = isInFor
@@ -86,7 +86,7 @@ function markStaticRoots (node: ASTNode, isInFor: boolean) {
     }
     if (node.children) {
       for (let i = 0, l = node.children.length; i < l; i++) {
-        markStaticRoots(node.children[i], isInFor || !!node.for)
+        markStaticRoots(node.children[i], isInFor || !!node.for)   //递归子节点
       }
     }
     if (node.ifConditions) {
@@ -98,10 +98,10 @@ function markStaticRoots (node: ASTNode, isInFor: boolean) {
 }
 
 function isStatic (node: ASTNode): boolean {
-  if (node.type === 2) { // expression
+  if (node.type === 2) { // expression     //表达式是非静态
     return false
   }
-  if (node.type === 3) { // text
+  if (node.type === 3) { // text     //纯文本或者注释节点是静态节点
     return true
   }
   return !!(node.pre || (

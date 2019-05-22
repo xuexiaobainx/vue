@@ -3,7 +3,7 @@
 import { cached } from 'shared/util'
 import { parseFilters } from './filter-parser'
 
-const defaultTagRE = /\{\{((?:.|\n)+?)\}\}/g
+const defaultTagRE = /\{\{((?:.|\n)+?)\}\}/g     //解析{{value}}
 const regexEscapeRE = /[-.*+?^${}()|[\]\/\\]/g
 
 const buildRegex = cached(delimiters => {
@@ -12,7 +12,7 @@ const buildRegex = cached(delimiters => {
   return new RegExp(open + '((?:.|\\n)+?)' + close, 'g')
 })
 
-export function parseText (
+export function parseText (     //解析纯文本
   text: string,
   delimiters?: [string, string]
 ): string | void {

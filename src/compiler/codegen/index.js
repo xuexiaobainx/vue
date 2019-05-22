@@ -23,7 +23,7 @@ export class CodegenState {
     this.options = options
     this.warn = options.warn || baseWarn
     this.transforms = pluckModuleFunction(options.modules, 'transformCode')
-    this.dataGenFns = pluckModuleFunction(options.modules, 'genData')
+    this.dataGenFns = pluckModuleFunction(options.modules, 'genData')     //模块中的genData函数
     this.directives = extend(extend({}, baseDirectives), options.directives)
     const isReservedTag = options.isReservedTag || no
     this.maybeComponent = (el: ASTElement) => !isReservedTag(el.tag)
@@ -37,19 +37,19 @@ export type CodegenResult = {
   staticRenderFns: Array<string>
 };
 
-export function generate (
+export function generate (         //生成render代码
   ast: ASTElement | void,
   options: CompilerOptions
 ): CodegenResult {
   const state = new CodegenState(options)
-  const code = ast ? genElement(ast, state) : '_c("div")'
+  const code = ast ? genElement(ast, state) : '_c("div")'    //否则返回一个空div的render函数
   return {
-    render: `with(this){return ${code}}`,
+    render: `with(this){return ${code}}`,      //就是render函数啦
     staticRenderFns: state.staticRenderFns
   }
 }
 
-export function genElement (el: ASTElement, state: CodegenState): string {
+export function genElement (el: ASTElement, state: CodegenState): string {   //返回return后面的代码块
   if (el.staticRoot && !el.staticProcessed) {
     return genStatic(el, state)
   } else if (el.once && !el.onceProcessed) {
@@ -71,7 +71,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
       const data = el.plain ? undefined : genData(el, state)
 
       const children = el.inlineTemplate ? null : genChildren(el, state, true)
-      code = `_c('${el.tag}'${
+      code = `_c('${el.tag}'${   //_c函数的三个参数分别为tag,data,children
         data ? `,${data}` : '' // data
       }${
         children ? `,${children}` : '' // children
@@ -141,10 +141,10 @@ function genIfConditions (
 
   const condition = conditions.shift()
   if (condition.exp) {
-    return `(${condition.exp})?${
+    return `(${condition.exp})?${      //用三元表达式来解析if
       genTernaryExp(condition.block)
     }:${
-      genIfConditions(conditions, state, altGen, altEmpty)
+      genIfConditions(conditions, state, altGen, altEmpty)     //递归
     }`
   } else {
     return `${genTernaryExp(condition.block)}`
@@ -177,7 +177,7 @@ export function genFor (
     el.tag !== 'template' &&
     !el.key
   ) {
-    state.warn(
+    state.warn(      //组件的v-for强制传key
       `<${el.tag} v-for="${alias} in ${exp}">: component lists rendered with ` +
       `v-for should have explicit keys. ` +
       `See https://vuejs.org/guide/list.html#key for more info.`,
@@ -187,13 +187,13 @@ export function genFor (
 
   el.forProcessed = true // avoid recursion
   return `${altHelper || '_l'}((${exp}),` +
-    `function(${alias}${iterator1}${iterator2}){` +
+    `function(${alias}${iterator1}${iterator2}){` +    //alias,iterator作为参数
       `return ${(altGen || genElement)(el, state)}` +
     '})'
 }
 
 export function genData (el: ASTElement, state: CodegenState): string {
-  let data = '{'
+  let data = '{'      //data中间用,拼接
 
   // directives first.
   // directives may mutate the el's other properties before they are generated.
@@ -264,7 +264,7 @@ export function genData (el: ASTElement, state: CodegenState): string {
       data += `${inlineTemplate},`
     }
   }
-  data = data.replace(/,$/, '') + '}'
+  data = data.replace(/,$/, '') + '}'      //把构造的data末尾的,去掉，用}关闭
   // v-bind data wrap
   if (el.wrapData) {
     data = el.wrapData(data)
