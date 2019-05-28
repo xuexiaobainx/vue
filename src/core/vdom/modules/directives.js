@@ -4,7 +4,7 @@ import { emptyNode } from 'core/vdom/patch'
 import { resolveAsset, handleError } from 'core/util/index'
 import { mergeVNodeHook } from 'core/vdom/helpers/index'
 
-export default {
+export default {              //patch过程中执行的指令相关的钩子函数
   create: updateDirectives,
   update: updateDirectives,
   destroy: function unbindDirectives (vnode: VNodeWithData) {
@@ -21,7 +21,7 @@ function updateDirectives (oldVnode: VNodeWithData, vnode: VNodeWithData) {
 function _update (oldVnode, vnode) {
   const isCreate = oldVnode === emptyNode
   const isDestroy = vnode === emptyNode
-  const oldDirs = normalizeDirectives(oldVnode.data.directives, oldVnode.context)
+  const oldDirs = normalizeDirectives(oldVnode.data.directives, oldVnode.context)    //传入参数是编译之后的结果
   const newDirs = normalizeDirectives(vnode.data.directives, vnode.context)
 
   const dirsWithInsert = []
@@ -33,14 +33,14 @@ function _update (oldVnode, vnode) {
     dir = newDirs[key]
     if (!oldDir) {
       // new directive, bind
-      callHook(dir, 'bind', vnode, oldVnode)
+      callHook(dir, 'bind', vnode, oldVnode)     //执行bind钩子函数
       if (dir.def && dir.def.inserted) {
         dirsWithInsert.push(dir)
       }
     } else {
       // existing directive, update
       dir.oldValue = oldDir.value
-      callHook(dir, 'update', vnode, oldVnode)
+      callHook(dir, 'update', vnode, oldVnode)    //执行update钩子函数
       if (dir.def && dir.def.componentUpdated) {
         dirsWithPostpatch.push(dir)
       }
@@ -81,7 +81,7 @@ function _update (oldVnode, vnode) {
 const emptyModifiers = Object.create(null)
 
 function normalizeDirectives (
-  dirs: ?Array<VNodeDirective>,
+  dirs: ?Array<VNodeDirective>,      
   vm: Component
 ): { [key: string]: VNodeDirective } {
   const res = Object.create(null)
@@ -89,7 +89,7 @@ function normalizeDirectives (
     return res
   }
   let i, dir
-  for (i = 0; i < dirs.length; i++) {
+  for (i = 0; i < dirs.length; i++) {     //遍历指令
     dir = dirs[i]
     if (!dir.modifiers) {
       dir.modifiers = emptyModifiers

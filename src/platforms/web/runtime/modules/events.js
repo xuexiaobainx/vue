@@ -19,7 +19,7 @@ function normalizeEvents (on) {
   }
 }
 
-let target: HTMLElement
+let target: HTMLElement       //dom对象
 
 function add (
   event: string,
@@ -31,16 +31,16 @@ function add (
   if (once) {
     const oldHandler = handler
     const _target = target // save current target element in closure
-    handler = function (ev) {
+    handler = function (ev) {             //handler就是最后事件触发执行的回调函数
       const res = arguments.length === 1
         ? oldHandler(ev)
         : oldHandler.apply(null, arguments)
-      if (res !== null) {
+      if (res !== null) {     //res调用一次之后就remove掉，避免重复执行
         remove(event, handler, capture, _target)
       }
     }
   }
-  target.addEventListener(
+  target.addEventListener(     //给dom添加事件回调
     event,
     handler,
     supportsPassive
@@ -65,7 +65,7 @@ function updateDOMListeners (oldVnode: VNodeWithData, vnode: VNodeWithData) {
   const on = vnode.data.on || {}
   const oldOn = oldVnode.data.on || {}
   target = vnode.elm
-  normalizeEvents(on)
+  normalizeEvents(on)     //处理v-modal
   updateListeners(on, oldOn, add, remove, vnode.context)
 }
 

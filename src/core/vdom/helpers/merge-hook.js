@@ -3,7 +3,7 @@
 import { createFnInvoker } from './update-listeners'
 import { remove, isDef, isUndef, isTrue } from 'shared/util'
 
-export function mergeVNodeHook (def: Object, hookKey: string, hook: Function) {
+export function mergeVNodeHook (def: Object, hookKey: string, hook: Function) {  //给def添加hookkey，并且传入hook的回调函数
   let invoker
   const oldHook = def[hookKey]
 
@@ -11,7 +11,7 @@ export function mergeVNodeHook (def: Object, hookKey: string, hook: Function) {
     hook.apply(this, arguments)
     // important: remove merged hook to ensure it's called only once
     // and prevent memory leak
-    remove(invoker.fns, wrappedHook)
+    remove(invoker.fns, wrappedHook)    //确保钩子只执行一次,防止内存泄漏
   }
 
   if (isUndef(oldHook)) {

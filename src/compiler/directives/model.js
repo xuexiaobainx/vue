@@ -3,7 +3,7 @@
 /**
  * Cross-platform code generation for component v-model
  */
-export function genComponentModel (
+export function genComponentModel (       //组件v-model的code生成
   el: ASTElement,
   value: string,
   modifiers: ?ASTModifiers
@@ -33,7 +33,7 @@ export function genComponentModel (
 /**
  * Cross-platform codegen helper for generating v-model value assignment code.
  */
-export function genAssignmentCode (
+export function genAssignmentCode (        //跨平台辅助方法
   value: string,
   assignment: string
 ): string {

@@ -150,7 +150,7 @@ export function  createComponent (
 
   // transform component v-model data into props & events
   if (isDef(data.model)) {
-    transformModel(Ctor.options, data)
+    transformModel(Ctor.options, data)    //处理组件v-model的data
   }
 
   // extract props
@@ -166,7 +166,7 @@ export function  createComponent (
   const listeners = data.on
   // replace with listeners with .native modifier
   // so it gets processed during parent component patch.
-  data.on = data.nativeOn
+  data.on = data.nativeOn  //.native对应的是原生dom事件。这样组件的vnode也有了on事件。因此组件的nativeOn对应的是dom原生事件，而且只有组件才有自定义事件
 
   if (isTrue(Ctor.options.abstract)) {
     // abstract components do not keep anything
@@ -243,7 +243,7 @@ function mergeHook (one: Function, two: Function): Function {
 
 // transform component v-model info (value and callback) into
 // prop and event handler respectively.
-function transformModel (options, data: any) {
+function transformModel (options, data: any) {    //把组件v-model的value和callback信息分别存到data的props和on里面，扩展一个prop和一个event
   const prop = (options.model && options.model.prop) || 'value'
   const event = (options.model && options.model.event) || 'input'
   ;(data.props || (data.props = {}))[prop] = data.model.value

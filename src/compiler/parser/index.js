@@ -316,7 +316,7 @@ export function processElement (element: ASTElement, options: CompilerOptions) {
   // removing structural attributes
   element.plain = !element.key && !element.attrsList.length     //不是一个纯文本
 
-  processRef(element)
+  processRef(element)     //解析ref
   processSlot(element)
   processComponent(element)
   for (let i = 0; i < transforms.length; i++) {
@@ -483,7 +483,7 @@ function processComponent (el) {
   }
 }
 
-function processAttrs (el) {
+function processAttrs (el) {     //解析节点的attrs
   const list = el.attrsList
   let i, l, name, rawName, value, modifiers, isProp
   for (i = 0, l = list.length; i < l; i++) {
@@ -491,13 +491,13 @@ function processAttrs (el) {
     value = list[i].value
     if (dirRE.test(name)) {
       // mark element as dynamic
-      el.hasBindings = true
+      el.hasBindings = true     //有动态属性
       // modifiers
       modifiers = parseModifiers(name)
       if (modifiers) {
-        name = name.replace(modifierRE, '')
+        name = name.replace(modifierRE, '')    //解析了修饰符之后把修饰符去掉，例如@click.prevent变成@click
       }
-      if (bindRE.test(name)) { // v-bind
+      if (bindRE.test(name)) { // v-bind: 或者 :
         name = name.replace(bindRE, '')
         value = parseFilters(value)
         isProp = false
@@ -525,8 +525,8 @@ function processAttrs (el) {
         } else {
           addAttr(el, name, value)
         }
-      } else if (onRE.test(name)) { // v-on
-        name = name.replace(onRE, '')
+      } else if (onRE.test(name)) { // v-on: 或者 @
+        name = name.replace(onRE, '')    //例如这里@click事件就变成了click
         addHandler(el, name, value, modifiers, false, warn)
       } else { // normal directives
         name = name.replace(dirRE, '')
@@ -536,9 +536,9 @@ function processAttrs (el) {
         if (arg) {
           name = name.slice(0, -(arg.length + 1))
         }
-        addDirective(el, name, rawName, value, arg, modifiers)
+        addDirective(el, name, rawName, value, arg, modifiers)    //添加指令数组
         if (process.env.NODE_ENV !== 'production' && name === 'model') {
-          checkForAliasModel(el, value)
+          checkForAliasModel(el, value)    //处理model指令
         }
       }
     } else {
@@ -570,11 +570,11 @@ function checkInFor (el: ASTElement): boolean {
   return false
 }
 
-function parseModifiers (name: string): Object | void {
+function parseModifiers (name: string): Object | void {    //处理属性的修饰符，例如.native .prevent
   const match = name.match(modifierRE)
   if (match) {
     const ret = {}
-    match.forEach(m => { ret[m.slice(1)] = true })
+    match.forEach(m => { ret[m.slice(1)] = true })    //给匹配到的修饰符去掉.然后置为true，
     return ret
   }
 }
@@ -627,7 +627,7 @@ function guardIESVGBug (attrs) {
 function checkForAliasModel (el, value) {
   let _el = el
   while (_el) {
-    if (_el.for && _el.alias === value) {
+    if (_el.for && _el.alias === value) {      //检测指令是否重复
       warn(
         `<${el.tag} v-model="${value}">: ` +
         `You are binding v-model directly to a v-for iteration alias. ` +

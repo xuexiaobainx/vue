@@ -2,7 +2,7 @@
 
 const fnExpRE = /^\s*([\w$_]+|\([^)]*?\))\s*=>|^function\s*\(/
 const simplePathRE = /^\s*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?']|\[".*?"]|\[\d+]|\[[A-Za-z_$][\w$]*])*\s*$/
-
+//simplePathRE:诸如a.b, a['b'], a[0], a[b]这样的路径形式
 // keyCode aliases
 const keyCodes: { [key: string]: number | Array<number> } = {
   esc: 27,
@@ -34,7 +34,7 @@ const modifierCode: { [key: string]: string } = {
   right: genGuard(`'button' in $event && $event.button !== 2`)
 }
 
-export function genHandlers (
+export function genHandlers (      //生成事件相关的render代码
   events: ASTElementHandlers,
   isNative: boolean,
   warn: Function
@@ -45,7 +45,7 @@ export function genHandlers (
     // #5330: warn click.right, since right clicks do not actually fire click events.
     if (process.env.NODE_ENV !== 'production' &&
       name === 'click' &&
-      handler && handler.modifiers && handler.modifiers.right
+      handler && handler.modifiers && handler.modifiers.right     //不要用.right来修饰点击事件触发右键点击
     ) {
       warn(
         `Use "contextmenu" instead of "click.right" since right clicks ` +
@@ -54,7 +54,7 @@ export function genHandlers (
     }
     res += `"${name}":${genHandler(name, handler)},`
   }
-  return res.slice(0, -1) + '}'
+  return res.slice(0, -1) + '}'     //用}封闭代码块
 }
 
 function genHandler (
@@ -68,7 +68,7 @@ function genHandler (
   if (Array.isArray(handler)) {
     return `[${handler.map(handler => genHandler(name, handler)).join(',')}]`
   }
-
+  //如果handler是一个对象
   const isMethodPath = simplePathRE.test(handler.value)
   const isFunctionExpression = fnExpRE.test(handler.value)
 
@@ -81,7 +81,7 @@ function genHandler (
     let genModifierCode = ''
     const keys = []
     for (const key in handler.modifiers) {
-      if (modifierCode[key]) {
+      if (modifierCode[key]) {      //获取对应的修饰符，拼接上修饰符的作用代码
         genModifierCode += modifierCode[key]
         // left/right
         if (keyCodes[key]) {
@@ -111,7 +111,7 @@ function genHandler (
       : isFunctionExpression
         ? `(${handler.value})($event)`
         : handler.value
-    return `function($event){${code}${handlerCode}}`
+    return `function($event){${code}${handlerCode}}`    //先执行修饰符的code,然后是回调函数的code
   }
 }
 

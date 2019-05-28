@@ -18,12 +18,12 @@ if (isIE9) {
   })
 }
 
-export default {
+export default {              //定义的directive
   inserted (el, binding, vnode) {
-    if (vnode.tag === 'select') {
+    if (vnode.tag === 'select') {        //select标签
       setSelected(el, binding, vnode.context)
       el._vOptions = [].map.call(el.options, getValue)
-    } else if (vnode.tag === 'textarea' || isTextInputType(el.type)) {
+    } else if (vnode.tag === 'textarea' || isTextInputType(el.type)) {    //textarea或者input标签
       el._vModifiers = binding.modifiers
       if (!binding.modifiers.lazy) {
         // Safari < 10.2 & UIWebView doesn't fire compositionend when
@@ -32,7 +32,7 @@ export default {
         // fires "change" instead of "input" on autocomplete.
         el.addEventListener('change', onCompositionEnd)
         if (!isAndroid) {
-          el.addEventListener('compositionstart', onCompositionStart)
+          el.addEventListener('compositionstart', onCompositionStart)     //避免输入时不停触发input事件
           el.addEventListener('compositionend', onCompositionEnd)
         }
         /* istanbul ignore if */
@@ -121,14 +121,14 @@ function getValue (option) {
 }
 
 function onCompositionStart (e) {
-  e.target.composing = true
+  e.target.composing = true         //用这个标志位来限制输入未完成时input不停触发的input事件
 }
 
 function onCompositionEnd (e) {
   // prevent triggering an input event for no reason
   if (!e.target.composing) return
-  e.target.composing = false
-  trigger(e.target, 'input')
+  e.target.composing = false         
+  trigger(e.target, 'input')      //完全输入之后才手动触发input事件
 }
 
 function trigger (el, type) {

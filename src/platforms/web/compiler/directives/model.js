@@ -10,7 +10,7 @@ let warn
 // so we used some reserved tokens during compile.
 export const RANGE_TOKEN = '__r'
 
-export default function model (
+export default function model (       //v-model指令解析
   el: ASTElement,
   dir: ASTDirective,
   _warn: Function
@@ -26,7 +26,7 @@ export default function model (
     // value will throw an error.
     if (tag === 'input' && type === 'file') {
       warn(
-        `<${el.tag} v-model="${value}" type="file">:\n` +
+        `<${el.tag} v-model="${value}" type="file">:\n` +          //file的input是只读的
         `File inputs are read only. Use a v-on:change listener instead.`
       )
     }
@@ -45,7 +45,7 @@ export default function model (
   } else if (tag === 'input' || tag === 'textarea') {
     genDefaultModel(el, value, modifiers)
   } else if (!config.isReservedTag(tag)) {
-    genComponentModel(el, value, modifiers)
+    genComponentModel(el, value, modifiers)       //组件v-model指令走这个分支创建code
     // component v-model doesn't need extra runtime
     return false
   } else if (process.env.NODE_ENV !== 'production') {
@@ -148,8 +148,8 @@ function genDefaultModel (
     code = `if($event.target.composing)return;${code}`
   }
 
-  addProp(el, 'value', `(${value})`)
-  addHandler(el, event, code, null, true)
+  addProp(el, 'value', `(${value})`)           //给value属性赋值
+  addHandler(el, event, code, null, true)           //然后调用事件回调函数
   if (trim || number) {
     addHandler(el, 'blur', '$forceUpdate()')
   }

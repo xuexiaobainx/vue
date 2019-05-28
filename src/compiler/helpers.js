@@ -54,7 +54,7 @@ export function addHandler (
     )
   }
   // check capture modifier
-  if (modifiers && modifiers.capture) {
+  if (modifiers && modifiers.capture) {      //添加标记
     delete modifiers.capture
     name = '!' + name // mark the event as captured
   }
@@ -78,11 +78,11 @@ export function addHandler (
   const handlers = events[name]
   /* istanbul ignore if */
   if (Array.isArray(handlers)) {
-    important ? handlers.unshift(newHandler) : handlers.push(newHandler)
+    important ? handlers.unshift(newHandler) : handlers.push(newHandler)      //已经是个数组了就添加在数组里
   } else if (handlers) {
-    events[name] = important ? [newHandler, handlers] : [handlers, newHandler]
+    events[name] = important ? [newHandler, handlers] : [handlers, newHandler]     //已有值了就放在数组里
   } else {
-    events[name] = newHandler
+    events[name] = newHandler     //第一次只要赋值
   }
 }
 

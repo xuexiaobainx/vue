@@ -13,7 +13,7 @@ export function initEvents (vm: Component) {
   vm._events = Object.create(null)
   vm._hasHookEvent = false
   // init parent attached events
-  const listeners = vm.$options._parentListeners
+  const listeners = vm.$options._parentListeners     //初始化父组件的事件
   if (listeners) {
     updateComponentListeners(vm, listeners)
   }
@@ -21,9 +21,9 @@ export function initEvents (vm: Component) {
 
 let target: Component
 
-function add (event, fn, once) {
+function add (event, fn, once) {       //自定义事件调用的add方法与原生事件的add方法不一样
   if (once) {
-    target.$once(event, fn)
+    target.$once(event, fn)        //on和once的定义在eventsMixin()
   } else {
     target.$on(event, fn)
   }
@@ -44,14 +44,14 @@ export function updateComponentListeners (
 
 export function eventsMixin (Vue: Class<Component>) {
   const hookRE = /^hook:/
-  Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {
+  Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {   //一直监听
     const vm: Component = this
     if (Array.isArray(event)) {
       for (let i = 0, l = event.length; i < l; i++) {
         this.$on(event[i], fn)
       }
     } else {
-      (vm._events[event] || (vm._events[event] = [])).push(fn)
+      (vm._events[event] || (vm._events[event] = [])).push(fn)    //存储事件的回调函数
       // optimize hook:event cost by using a boolean flag marked at registration
       // instead of a hash lookup
       if (hookRE.test(event)) {
@@ -61,9 +61,9 @@ export function eventsMixin (Vue: Class<Component>) {
     return vm
   }
 
-  Vue.prototype.$once = function (event: string, fn: Function): Component {
+  Vue.prototype.$once = function (event: string, fn: Function): Component {    //事件只执行一次
     const vm: Component = this
-    function on () {
+    function on () {        //封装了删除监听的回调函数
       vm.$off(event, on)
       fn.apply(vm, arguments)
     }
@@ -120,11 +120,11 @@ export function eventsMixin (Vue: Class<Component>) {
           `${formatComponentName(vm)} but the handler is registered for "${event}". ` +
           `Note that HTML attributes are case-insensitive and you cannot use ` +
           `v-on to listen to camelCase events when using in-DOM templates. ` +
-          `You should probably use "${hyphenate(event)}" instead of "${event}".`
+          `You should probably use "${hyphenate(event)}" instead of "${event}".`    //最好用连字符的形式命名事件
         )
       }
     }
-    let cbs = vm._events[event]
+    let cbs = vm._events[event]     //获取事件的回调函数，遍历执行
     if (cbs) {
       cbs = cbs.length > 1 ? toArray(cbs) : cbs
       const args = toArray(arguments, 1)

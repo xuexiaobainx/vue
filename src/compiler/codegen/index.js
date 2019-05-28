@@ -9,8 +9,8 @@ type TransformFunction = (el: ASTElement, code: string) => string;
 type DataGenFunction = (el: ASTElement) => string;
 type DirectiveFunction = (el: ASTElement, dir: ASTDirective, warn: Function) => boolean;
 
-export class CodegenState {
-  options: CompilerOptions;
+export class CodegenState {   
+  options: CompilerOptions;        //编译相关的配置
   warn: Function;
   transforms: Array<TransformFunction>;
   dataGenFns: Array<DataGenFunction>;
@@ -24,7 +24,7 @@ export class CodegenState {
     this.warn = options.warn || baseWarn
     this.transforms = pluckModuleFunction(options.modules, 'transformCode')
     this.dataGenFns = pluckModuleFunction(options.modules, 'genData')     //模块中的genData函数
-    this.directives = extend(extend({}, baseDirectives), options.directives)
+    this.directives = extend(extend({}, baseDirectives), options.directives)   //merge了{model,text,html}三个指令的方法
     const isReservedTag = options.isReservedTag || no
     this.maybeComponent = (el: ASTElement) => !isReservedTag(el.tag)
     this.onceId = 0
@@ -197,7 +197,7 @@ export function genData (el: ASTElement, state: CodegenState): string {
 
   // directives first.
   // directives may mutate the el's other properties before they are generated.
-  const dirs = genDirectives(el, state)
+  const dirs = genDirectives(el, state)     //这个方法要先执行，因为有可能被其他属性修改
   if (dirs) data += dirs + ','
 
   // key
@@ -248,7 +248,7 @@ export function genData (el: ASTElement, state: CodegenState): string {
     data += `${genScopedSlots(el.scopedSlots, state)},`
   }
   // component v-model
-  if (el.model) {
+  if (el.model) {         //组件的v-model
     data += `model:{value:${
       el.model.value
     },callback:${
@@ -285,7 +285,7 @@ function genDirectives (el: ASTElement, state: CodegenState): string | void {
   for (i = 0, l = dirs.length; i < l; i++) {
     dir = dirs[i]
     needRuntime = true
-    const gen: DirectiveFunction = state.directives[dir.name]
+    const gen: DirectiveFunction = state.directives[dir.name]     //这里的指令函数有{model,text,html}三种
     if (gen) {
       // compile-time directive that manipulates AST.
       // returns true if it also needs a runtime counterpart.
@@ -293,7 +293,7 @@ function genDirectives (el: ASTElement, state: CodegenState): string | void {
     }
     if (needRuntime) {
       hasRuntime = true
-      res += `{name:"${dir.name}",rawName:"${dir.rawName}"${
+      res += `{name:"${dir.name}",rawName:"${dir.rawName}"${         //运行时的code拼接
         dir.value ? `,value:(${dir.value}),expression:${JSON.stringify(dir.value)}` : ''
       }${
         dir.arg ? `,arg:"${dir.arg}"` : ''

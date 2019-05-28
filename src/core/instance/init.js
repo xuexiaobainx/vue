@@ -50,7 +50,7 @@ export function initMixin (Vue: Class<Component>) {
     // expose real self
     vm._self = vm
     initLifecycle(vm)
-    initEvents(vm)
+    initEvents(vm)          //初始化事件
     initRender(vm)
     callHook(vm, 'beforeCreate')      //初始化时执行的钩子
     initInjections(vm) // resolve injections before data/props
